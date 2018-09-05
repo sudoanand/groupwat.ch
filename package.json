@@ -1,0 +1,28 @@
+{
+  "name": "groupwat.ch",
+  "version": "1.0.0",
+  "description": "Make your own video room to watch videos remotely with all your friends",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hack4mer/groupwat.ch.git"
+  },
+  "keywords": [
+    "groupwatch",
+    "groupwat.ch",
+    "getaroom",
+    "getaroom.video"
+  ],
+  "author": "Anand Singh (@hack4mer)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/hack4mer/groupwat.ch/issues"
+  },
+  "homepage": "https://github.com/hack4mer/groupwat.ch#readme",
+  "dependencies": {
+    "video.js": "^7.1.0"
+  }
+}
