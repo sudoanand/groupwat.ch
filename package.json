@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/hack4mer/groupwat.ch#readme",
   "dependencies": {
+    "silvermine-videojs-quality-selector": "^1.1.2",
     "video.js": "^7.1.0"
   }
 }
