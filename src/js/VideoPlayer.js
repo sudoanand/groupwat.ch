@@ -5,8 +5,7 @@
  */
 
 import videojs from 'video.js';
-import {websocket} from './Socket';
-import {mGwatch} from './index'
+import {mGwatch,websocket} from './index';
 
 /**
  * Constructor for the videoJS player controller

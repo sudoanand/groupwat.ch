@@ -5,6 +5,8 @@
  */
 import {VideoPlayer} from './VideoPlayer'
 import $ from 'jquery';
+import {Socket} from './Socket'
+
 
 /**
  * GWatch constructor
@@ -17,7 +19,9 @@ export const GWatch = function(options){
     	videoId :  options.videoId || 'my-video',
         videoSelector : options.videoSelector || $("#video-selector"),
         videoSrcElement : options.videoSrcElement || $("#my-video-src"),
-        devmode : options.devmode || false
+        devmode : options.devmode || false,
+        socket_server : options.socket_server || window.location.hostname,
+        socket_port : options.socket_server ||12345
     };
 
     //A unique identifier for the socket connection    
@@ -32,6 +36,9 @@ export const GWatch = function(options){
 
     //Attach jQuery UI events to the dom elements
     this.initializeUIEvents();        
+
+    //Initialize the socket class
+    this.socket = new Socket(this.config.socket_server,this.config.socket_port);
 }
 
 /**

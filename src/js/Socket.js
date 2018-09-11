@@ -8,22 +8,32 @@ import $ from 'jquery';
 import {mGwatch} from './index'
 
 
-const SOCKET_SERVER = window.location.hostname;  
+/**
+ * socket constructor
+ * @param  {string} SOCKET_SERVER Hostname of the socket server
+ */
+export const Socket = function(socket_server,socket_port){
 
+  var port = socket_port || 12345;
 
-//create a new WebSocket object.
-var msgBox = $('#log');
-var wsUri = "ws://"+SOCKET_SERVER+":12345/server.php";  
-export var websocket = new WebSocket(wsUri); 
+  this.wsUri      = "ws://"+socket_server+":"+socket_port;  
+  this.websocket  = new WebSocket(this.wsUri);
+  this.msgBox     = $('#log');
 
-
-
-websocket.onopen = function(ev) { // connection is open 
-  msgBox.html('<div class="system_msg" style="color:#bbbbbb">Socket connected, Connection id: '+mGwatch.session_identifier+'</div>'); //notify user
+  this.websocket.onopen     = this.onConnected.bind(this);  
+  this.websocket.onmessage  = this.onMessage;
+  this.websocket.onerror    = this.onError.bind(this);
+  this.websocket.onclose    = this.onError.bind(this);
 }
 
-// Message received from server
-websocket.onmessage = function(ev){
+Socket.prototype.onConnected = function(ev) { 
+  // connection is open 
+  this.msgBox.html('<div class="system_msg" style="color:#bbbbbb">Socket connected, Connection id: '+mGwatch.session_identifier+'</div>'); //notify user
+}
+
+
+Socket.prototype.onMessage = function(ev){
+
   var response    = JSON.parse(ev.data); //PHP sends Json data
  
 
@@ -68,7 +78,10 @@ websocket.onmessage = function(ev){
   }
 };
 
-function connection_error(ev){ msgBox.html('<div class="system_msg" style="color:red">Socket connection lost/failed! reload the page to retry...</div>'); }; 
-
-websocket.onerror  = connection_error;
-websocket.onclose   = connection_error;
+/**
+ * Socket connection error handler
+ * @param  {event} ev event object 
+ */
+Socket.prototype.onError = function(ev){
+  this.msgBox.html('<div class="system_msg" style="color:red">Socket connection lost/failed! reload the page to retry...</div>');
+}; 

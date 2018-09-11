@@ -5,4 +5,12 @@
 import {GWatch} from './GWatch'
 
 //Initialize the GWatch class
-export const mGwatch = new GWatch({devmode:true});
+export const mGwatch = new GWatch({
+
+	devmode:true
+
+});
+
+
+//Export the websocket instance
+export const websocket = mGwatch.socket.websocket;
