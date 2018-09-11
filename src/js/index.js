@@ -4,12 +4,11 @@
  */
 import {GWatch} from './GWatch'
 
+var config = require('../../config.json');
+
+
 //Initialize the GWatch class
-export const mGwatch = new GWatch({
-
-	devmode:true
-
-});
+export const mGwatch = new GWatch(config);
 
 
 //Export the websocket instance

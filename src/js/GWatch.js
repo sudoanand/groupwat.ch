@@ -21,7 +21,7 @@ export const GWatch = function(options){
         videoSrcElement : options.videoSrcElement || $("#my-video-src"),
         devmode : options.devmode || false,
         socket_server : options.socket_server || window.location.hostname,
-        socket_port : options.socket_server ||12345
+        socket_port : options.socket_port ||12345
     };
 
     //A unique identifier for the socket connection    
