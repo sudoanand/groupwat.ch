@@ -1,10 +1,16 @@
 /**
  * Gwatch
- * A controller for vidoe player
+ * A controller class for the vidoe player and index page functionalities
  * @author Anand Singh <@hack4mer> https://anand.today
  */
-var GWatch = function(options) {
+import {VideoPlayer} from './VideoPlayer'
+import $ from 'jquery';
 
+/**
+ * GWatch constructor
+ * @param {object} options configuration object for the GroupWat.ch player
+ */
+export const GWatch = function(options){
 
     //options and config
     this.config = {
@@ -14,13 +20,18 @@ var GWatch = function(options) {
         devmode : options.devmode || false
     };
 
-    
+    //A unique identifier for the socket connection    
+    this.session_identifier = this.generateConnectionId();
+
+    //A placeholder for an instance of the VideoPlayer
+    this.video = null;
+
     //show the video player
     $("#my-video").show();
 
 
     //Attach jQuery UI events to the dom elements
-    this.initializeUIEvents();
+    this.initializeUIEvents();        
 }
 
 /**
@@ -50,11 +61,11 @@ GWatch.prototype.initializeUIEvents = function(){
  */
 GWatch.prototype.onSrcSelected = function(e){
 
-    var _       = this;
+    var _       = this,
         file    = e.target.files[0],
         fileUrl = window.URL.createObjectURL(file);
 
-    _.log("Src file selected","URL : "+fileUrl);
+    _.log("New source file selected");
 
     //Configure the player to use newly selected source
     _.changePlayerSource(fileUrl)
@@ -69,7 +80,7 @@ GWatch.prototype.onSrcSelected = function(e){
  */
 GWatch.prototype.changePlayerSource = function(newSrc){
 
-    this.log("Changing player's source",newSrc);
+    this.log("Changing player's source");
 
     //Change src element
     this.config.videoSrcElement.attr("src",newSrc);
@@ -77,7 +88,8 @@ GWatch.prototype.changePlayerSource = function(newSrc){
     if(typeof this.player=="undefined"){
 
     	//Initialize video player
-    	this.player = new VideoPlayer().player;
+        this.video = new VideoPlayer();
+    	this.player = this.video.player;
     }else{
 
     	//Video player already initialized
@@ -86,10 +98,14 @@ GWatch.prototype.changePlayerSource = function(newSrc){
     	this.player.load();
     	this.player.play();
     }
-
 }
 
-
-
-
+/**
+ * Generates a random string to use as an identifier for the socket connection
+ * @return {[type]} [description]
+ */
+GWatch.prototype.generateConnectionId = function(){
+  var date = new Date();
+  return btoa(unescape(encodeURIComponent(date.getTime()+Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)))).slice(0,-2);
+}
 

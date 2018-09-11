@@ -19,7 +19,7 @@ $clients = array($socket);
 
 //start endless loop, so that our script doesn't stop
 while (true) {
-	//manage multipal connections
+	//manage multiple connections
 	$changed = $clients;
 	//returns the socket resources in $changed array
 	socket_select($changed, $null, $null, 0, 10);
