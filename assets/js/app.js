@@ -8,6 +8,7 @@ var GWatch = function(options) {
 
     //options and config
     this.config = {
+    	videoId :  options.videoId || 'my-video',
         videoSelector : options.videoSelector || $("#video-selector"),
         videoSrcElement : options.videoSrcElement || $("#my-video-src"),
         devmode : options.devmode || false
@@ -73,22 +74,20 @@ GWatch.prototype.changePlayerSource = function(newSrc){
     //Change src element
     this.config.videoSrcElement.attr("src",newSrc);
 
-    //Re-initilize the video player to use the new source
-    this.reinitializeVideoPlayer();
+    if(typeof this.player=="undefined"){
+
+    	//Initialize video player
+    	this.player = new VideoPlayer().player;
+    }else{
+
+    	//Video player already initialized
+    	//Change video player source
+    	this.player.src({type:'video/mp4', src:newSrc});
+    	this.player.load();
+    	this.player.play();
+    }
+
 }
-
-
-/**
- * Initiazlizes the videojs player 
- * Disposes the old player , if any
- */
-GWatch.prototype.reinitializeVideoPlayer = function(){
-
-   
-    this.video = new VideoPlayer();
-   
-}
-
 
 
 

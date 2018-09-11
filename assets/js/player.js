@@ -1,6 +1,8 @@
 var VideoPlayer = function(){
 
-  var options = {};
+  var options = {},_=this;
+  this.lastSeekValue = 0;
+  this.videoSeeking = 0;
 
   this.player = videojs('my-video', options, function onPlayerReady() {
 
@@ -35,7 +37,7 @@ var VideoPlayer = function(){
 
     this.on('play', function() {
 
-      if(videoSeeking){return;}
+      if(_.videoSeeking){return;}
 
       console.log("played",this.paused());
 
@@ -51,9 +53,9 @@ var VideoPlayer = function(){
         videoSeeking = false;
         var seekedTo = this.currentTime();
 
-        if(seekedTo==lastSeekValue){ return;}
+        if(seekedTo==_.lastSeekValue){ return;}
 
-        lastSeekValue = seekedTo;
+        _.lastSeekValue = seekedTo;
         websocket.send(JSON.stringify({
           name: "andy",
           key: "seek_value",
