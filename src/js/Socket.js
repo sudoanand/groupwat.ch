@@ -68,5 +68,7 @@ websocket.onmessage = function(ev){
   }
 };
 
+function connection_error(ev){ msgBox.html('<div class="system_msg" style="color:red">Socket connection lost/failed! reload the page to retry...</div>'); }; 
 
-websocket.onclose   = function(ev){ msgBox.html('<div class="system_msg" style="color:red">Socket connection lost/failed! reload the page to retry...</div>'); }; 
+websocket.onerror  = connection_error;
+websocket.onclose   = connection_error;
