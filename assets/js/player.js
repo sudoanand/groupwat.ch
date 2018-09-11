@@ -2,12 +2,13 @@ var VideoPlayer = function(){
 
   var options = {};
 
-  player = videojs('my-video', options, function onPlayerReady() {
+  this.player = videojs('my-video', options, function onPlayerReady() {
 
     videojs.log('Your player is ready!');
 
     this.play();
 
+    
     this.on('ended', function() {
       videojs.log('Awww...over so soon?!');
     });
