@@ -5,7 +5,7 @@
  */ 
 
 import $ from 'jquery';
-import {mGwatch} from './index'
+import {Utilities} from './Utilities'
 
 
 /**
@@ -28,7 +28,7 @@ export const Socket = function(socket_server,socket_port){
 
 Socket.prototype.onConnected = function(ev) { 
   // connection is open 
-  this.msgBox.html('<div class="system_msg" style="color:#bbbbbb">Socket connected, Connection id: '+mGwatch.session_identifier+'</div>'); //notify user
+  this.msgBox.html('<div class="system_msg" style="color:#bbbbbb">Socket connected, Connection id: '+Utilities.session_identifier+'</div>'); //notify user
 }
 
 
@@ -37,7 +37,7 @@ Socket.prototype.onMessage = function(ev){
   var response    = JSON.parse(ev.data); //PHP sends Json data
  
 
-  if(response.name==mGwatch.session_identifier || !mGwatch.video){
+  if(response.name==Utilities.session_identifier || !Utilities.video){
     //This is a message from self
     //or the video is not initialized yet
     //Hence, ignore
@@ -46,10 +46,10 @@ Socket.prototype.onMessage = function(ev){
 
 
   //Do not notify others about this seek event since it was triggered by someone else
-  mGwatch.video.notifyPeers = false; 
+  Utilities.video.notifyPeers = false; 
   
-  mGwatch.log("Socket message received:",mGwatch.video.notifyPeers); 
-  if(mGwatch.config.devmode){
+  Utilities.log("Socket message received:",Utilities.video.notifyPeers); 
+  if(Utilities.config.devmode){
     console.log(response);
   }
 
@@ -58,23 +58,23 @@ Socket.prototype.onMessage = function(ev){
 
   if(response.key=="seek_value"){
 
-    mGwatch.player.currentTime(response.value.time); //Seek the video
+    Utilities.player.currentTime(response.value.time); //Seek the video
 
     if(response.value.play){
-      mGwatch.player.play(); //Play if the peers video is playing
+      Utilities.player.play(); //Play if the peers video is playing
     }    
-  }else if(response.key=="pause" && !mGwatch.player.paused()){
+  }else if(response.key=="pause" && !Utilities.player.paused()){
 
     //Pause the video as requested by the peer
-    mGwatch.player.pause();
-  }else if(response.key=="play" && mGwatch.player.paused()){
+    Utilities.player.pause();
+  }else if(response.key=="play" && Utilities.player.paused()){
 
     //Play the video as requested by the peer
-    mGwatch.player.play();
+    Utilities.player.play();
   }else{
 
     //Remove the notification lock
-    mGwatch.video.notifyPeers = true; 
+    Utilities.video.notifyPeers = true; 
   }
 };
 

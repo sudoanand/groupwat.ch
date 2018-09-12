@@ -5,7 +5,7 @@
  */
 
 import videojs from 'video.js';
-import {mGwatch,websocket} from './index';
+import {Utilities} from './Utilities';
 
 /**
  * Constructor for the videoJS player controller
@@ -16,6 +16,7 @@ export const VideoPlayer = function(){
   this.lastSeekValue = 0;
   this.videoSeeking = 0;
 
+
   //decides wether to send event notification ot others through the socket   
   this.notifyPeers = true;
 
@@ -23,20 +24,20 @@ export const VideoPlayer = function(){
   this.player = videojs('my-video', options, function onPlayerReady() {
 
     //Palyer is ready
-    mGwatch.log('Your player is ready!');
+    Utilities.log('Your player is ready!');
   
 
     //Video seeking event handler
     this.on("seeking", function (e) {
       _.videoSeeking = true;
-      mGwatch.log("Video seeking: " + this.currentTime());
+      Utilities.log("Video seeking: " + this.currentTime());
     });
 
     //Video pause event handler
     this.on('pause', function(e) {
 
       var socketPayload = {
-        name: mGwatch.session_identifier,
+        name: Utilities.session_identifier,
         key: "pause",
         value : true
       };
@@ -45,12 +46,12 @@ export const VideoPlayer = function(){
       if(_.notifyPeers){
         
         //Notify peers
-        mGwatch.log("Video paused","Sending socket message");            
-        if(mGwatch.config.devmode){
+        Utilities.log("Video paused","Sending socket message");            
+        if(Utilities.logging){
           console.log(socketPayload)
         }
 
-        websocket.send(JSON.stringify(socketPayload)); 
+        Utilities.websocket.send(JSON.stringify(socketPayload)); 
       }
 
       //Remove the notification lock, if present
@@ -59,11 +60,11 @@ export const VideoPlayer = function(){
 
     //Video play event handler
     this.on('play', function() {
-
+      
       if(_.videoSeeking){return;}
 
       var socketPayload = {
-        name: mGwatch.session_identifier,
+        name: Utilities.session_identifier,
         key: "play",
         value : true
       };
@@ -73,11 +74,11 @@ export const VideoPlayer = function(){
       if(_.notifyPeers){
 
         //Notify peers
-        mGwatch.log("Video played","Sending socket message");
-        if(mGwatch.config.devmode){
+        Utilities.log("Video played","Sending socket message");
+        if(Utilities.logging){
           console.log(socketPayload)
         }
-        websocket.send(JSON.stringify(socketPayload)); 
+        Utilities.websocket.send(JSON.stringify(socketPayload)); 
       }
       
       //Remove the notification lock, if present
@@ -92,10 +93,10 @@ export const VideoPlayer = function(){
 
       if(seekedTo==_.lastSeekValue){ return;}
 
-      mGwatch.log("Video seeked");
+      Utilities.log("Video seeked");
 
       var socketPayload = {
-        name: mGwatch.session_identifier,
+        name: Utilities.session_identifier,
         key: "seek_value",
         value : {time : seekedTo, play: !this.paused()}
       };
@@ -105,11 +106,11 @@ export const VideoPlayer = function(){
       if(_.notifyPeers){
 
         //Notify peers
-        mGwatch.log("Sending seeked singal message");
-        if(mGwatch.config.devmode){
+        Utilities.log("Sending seeked singal message");
+        if(Utilities.logging){
           console.log(socketPayload)
         }
-        websocket.send(JSON.stringify(socketPayload)); 
+        Utilities.websocket.send(JSON.stringify(socketPayload)); 
       }
 
       //Remove the notification lock, if present
