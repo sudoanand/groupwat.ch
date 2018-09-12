@@ -1,0 +1,8 @@
+.vjs-custom-icon{
+	font-size: initial;
+}
+
+.vjs-custom-icon .icon{
+	position: absolute;
+	top: 7px;
+}

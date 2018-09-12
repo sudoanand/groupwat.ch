@@ -49,7 +49,7 @@ Socket.prototype.onMessage = function(ev){
   Utilities.video.notifyPeers = false; 
   
   Utilities.log("Socket message received:",Utilities.video.notifyPeers); 
-  if(Utilities.config.devmode){
+  if(Utilities.logging){
     console.log(response);
   }
 
