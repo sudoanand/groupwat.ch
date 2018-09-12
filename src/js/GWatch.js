@@ -7,13 +7,14 @@ import {VideoPlayer} from './VideoPlayer'
 import $ from 'jquery';
 import {Socket} from './Socket'
 import {Utilities} from './Utilities'
-
+import styles from '../css/app.css'
 
 /**
  * GWatch constructor
  * @param {object} options configuration object for the GroupWat.ch player
  */
 class GWatch{
+
 
     constructor(options){
 
