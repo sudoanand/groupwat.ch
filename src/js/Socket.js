@@ -83,5 +83,5 @@ Socket.prototype.onMessage = function(ev){
  * @param  {event} ev event object 
  */
 Socket.prototype.onError = function(ev){
-  this.msgBox.html('<div class="system_msg">Socket connection lost/failed! reload the page to retry...</div>');
+  this.msgBox.html('<div class="system_msg">Socket connection lost/failed! reload the page to retry... <a style="color:blue" target="_blank" href="https://github.com/hack4mer/groupwat.ch#installation">SEE HERE</a></div>');
 }; 
