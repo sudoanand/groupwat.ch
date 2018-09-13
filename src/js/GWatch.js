@@ -20,6 +20,7 @@ class GWatch{
 
         //options and config
         this.config = {
+            demo_socket_server :  's1.site4m.com',
             videoId :  options.videoId || 'my-video',
             videoSelector : options.videoSelector || $("#video-selector"),
             videoSrcElement : options.videoSrcElement || $("#my-video-src"),
@@ -30,6 +31,11 @@ class GWatch{
             onSocketError : options.onSocketError || function(){ console.error("socket connection failed");}
         };
 
+
+        //Enable demo socket server if its the github page
+        if(window.location.hostname=="groupwat.ch"){
+            this.config.socket_server = this.config.demo_socket_server;
+        }
 
         //A placeholder for an instance of the VideoPlayer
         this.video = null;
