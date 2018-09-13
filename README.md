@@ -23,3 +23,7 @@ If your socket connection fails that means , either:
 - socket is not running, run it by step 2
 - or, the your firewall is blocking the port on which the websocket is running
 
+License
+----
+
+MIT
