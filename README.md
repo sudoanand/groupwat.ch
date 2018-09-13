@@ -1,5 +1,9 @@
 # GroupWat.ch
 Make your own video room to watch videos remotely with all your friends
+### Demo
+Here's a demo : http://groupwat.ch/example.html
+
+Please note many people might be using the demo page in real-time. Therefore when they pause, play or seek a video, it reflects on your end too.
 
 ### Features
 
@@ -15,6 +19,7 @@ It's very easy to run groupwat.ch on your server (or localhost), it needs `php-c
 
 - Step 1 : Clone the repo or [Download Zip](https://github.com/hack4mer/groupwat.ch/archive/master.zip) archive
 - Step 2: Start the websocket server by running `php -q socket_server/server.php`
+- Open the `example.html` page in your browser to see it in action
 
 That's it, now visit the index.html page and if all went well, you will see: 
 `Socket connected!` 
