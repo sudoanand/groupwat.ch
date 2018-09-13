@@ -28,7 +28,7 @@ export const Socket = function(socket_server,socket_port){
 
 Socket.prototype.onConnected = function(ev) { 
   // connection is open 
-  this.msgBox.html('<div class="system_msg" style="color:#bbbbbb">Socket connected, Connection id: '+Utilities.session_identifier+'</div>'); //notify user
+  this.msgBox.html('<div class="system_msg">Socket connected, Connection id: '+Utilities.session_identifier+'</div>'); //notify user
 }
 
 
@@ -83,5 +83,5 @@ Socket.prototype.onMessage = function(ev){
  * @param  {event} ev event object 
  */
 Socket.prototype.onError = function(ev){
-  this.msgBox.html('<div class="system_msg" style="color:red">Socket connection lost/failed! reload the page to retry...</div>');
+  this.msgBox.html('<div class="system_msg">Socket connection lost/failed! reload the page to retry...</div>');
 }; 

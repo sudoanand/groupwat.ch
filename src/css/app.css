@@ -1,5 +1,5 @@
 #video_container{
-	display: none;
+	display: block;
 }
 
 .vjs-custom-icon{
@@ -7,8 +7,25 @@
 	cursor: pointer;
 }
 
+li.nav-item {
+    margin: 0px 10px;
+}
+
+#video_container{
+	width:auto;
+	display: inline-block;
+}
 
 .vjs-custom-icon .icon{
 	position: absolute;
 	top: 7px;
+}
+
+.video-js{
+	width: 640px;
+	height: 264px;
+}
+
+.socket_log{
+	margin: 40px auto;
 }
