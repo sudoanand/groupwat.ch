@@ -18,18 +18,13 @@ export const Socket = function(socket_server,socket_port){
 
   this.wsUri      = "ws://"+socket_server+":"+socket_port;  
   this.websocket  = new WebSocket(this.wsUri);
-  this.msgBox     = $('#log');
 
-  this.websocket.onopen     = this.onConnected.bind(this);  
+  this.websocket.onopen     = Utilities.onSocketConnected.bind(this);  
   this.websocket.onmessage  = this.onMessage;
-  this.websocket.onerror    = this.onError.bind(this);
-  this.websocket.onclose    = this.onError.bind(this);
+  this.websocket.onerror    = Utilities.onSocketError.bind(this);
+  this.websocket.onclose    = Utilities.onSocketError.bind(this);
 }
 
-Socket.prototype.onConnected = function(ev) { 
-  // connection is open 
-  this.msgBox.html('<div class="system_msg">Socket connected, Connection id: '+Utilities.session_identifier+'</div>'); //notify user
-}
 
 
 Socket.prototype.onMessage = function(ev){
@@ -82,6 +77,4 @@ Socket.prototype.onMessage = function(ev){
  * Socket connection error handler
  * @param  {event} ev event object 
  */
-Socket.prototype.onError = function(ev){
-  this.msgBox.html('<div class="system_msg">Socket connection lost/failed! reload the page to retry... <a style="color:blue" target="_blank" href="https://github.com/hack4mer/groupwat.ch#installation">SEE HERE</a></div>');
-}; 
+Socket.prototype.onError = Utilities.onSocketError

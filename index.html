@@ -159,9 +159,18 @@
   <script type="text/javascript">
 
     var config = {
-      devmode: true
-    }
+      devmode: true,
+      onSocketConnected : function(ev) { 
+      
+        //socket connection successful
+        $("#log").html('<div class="system_msg">Socket connected!</div>'); //notify user
+      },
 
+      onSocketError : function(ev){
+        //socket connection failed
+        $("#log").html('<div class="system_msg">Socket connection lost/failed! reload the page to retry... <a style="color:blue" target="_blank" href="https://github.com/hack4mer/groupwat.ch#installation">SEE HERE</a></div>');
+      }
+    }
     var mGWatch = new GWatch(config);
   </script>
   <!-- Groupwatch js dependencies end -->

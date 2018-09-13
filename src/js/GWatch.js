@@ -25,7 +25,9 @@ class GWatch{
             videoSrcElement : options.videoSrcElement || $("#my-video-src"),
             devmode : options.devmode || false,
             socket_server : options.socket_server || window.location.hostname,
-            socket_port : options.socket_port ||12345
+            socket_port : options.socket_port ||12345,
+            onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
+            onSocketError : options.onSocketError || function(){ console.error("socket connection failed");}
         };
 
 
@@ -43,6 +45,8 @@ class GWatch{
         //Set utility options
         Utilities.logging = this.config.devmode;                                            // If the logs should appera in the console
         Utilities.session_identifier = this.generateConnectionId();                         //A unique identifier for the socket connection    
+        Utilities.onSocketConnected = this.config.onSocketConnected; 
+        Utilities.onSocketError     = this.config.onSocketError;
         Utilities.websocket = new Socket(this.config.socket_server,this.config.socket_port).websocket;   //Initialize the socket class    
     }
 
