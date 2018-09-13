@@ -96,6 +96,15 @@ class GWatch{
             Utilities.player.src({type:'video/mp4', src:newSrc});
             Utilities.player.load();
         }
+
+        this.showVideoContainer();
+    }
+
+    showVideoContainer(){
+
+
+        //Show video container
+        $("#"+this.config.videoId).parent().fadeIn();
     }
 
     /**

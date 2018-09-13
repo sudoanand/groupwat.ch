@@ -19,4 +19,11 @@ export  class Utilities{
         console.log("GWatch: ",[].slice.call(arguments).join(",")); 
     }
 
+    /**
+     * Notifies user about an error that occured
+     * @return {[type]} [description]
+     */
+    static notifyError(message){
+    	alert(message);
+    }
 }

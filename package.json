@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "jquery": "^3.3.1",
+    "srt-webvtt": "^1.0.1",
     "video.js": "^7.1.0"
   }
 }

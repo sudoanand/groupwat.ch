@@ -1,6 +1,12 @@
+#video_container{
+	display: none;
+}
+
 .vjs-custom-icon{
 	font-size: initial;
+	cursor: pointer;
 }
+
 
 .vjs-custom-icon .icon{
 	position: absolute;

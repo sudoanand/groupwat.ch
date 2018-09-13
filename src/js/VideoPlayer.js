@@ -7,6 +7,7 @@
 
 import videojs from 'video.js';
 import {Utilities} from './Utilities';
+import VTTConverter from 'srt-webvtt'; 
 
 /**
  * Constructor for the videoJS player controller
@@ -29,13 +30,14 @@ export class VideoPlayer{
     //Add subtitle button
     this.addNewButton({
       "id":"addSubsBtn",
-      "icon":"icon-speech"
+      "icon":"icon-speech",
+      "title":"Add subtitle",
     },this.onAddSubBtnClicked.bind(this));
   }
 
   /**
    * Adds new button to the player
-   * @param {object} data an object with valid keys : icon,id
+   * @param {object} data an object with valid keys : icon,id,title
    * @param {function} onClickListener A click listener for the added button
    */
   addNewButton(data,onClickListener) {
@@ -49,7 +51,7 @@ export class VideoPlayer{
     newElement.id = data.id;
     newElement.className = 'vjs-custom-icon vjs-control';
 
-    newLink.innerHTML = "<i class='icon " + data.icon + " line-height' aria-hidden='true'></i>";
+    newLink.innerHTML = "<i title='"+data.title+"' class='icon " + data.icon + " line-height' aria-hidden='true'></i>";
     newElement.appendChild(newLink);
     controlBar = document.getElementsByClassName('vjs-control-bar')[0];
 
@@ -66,13 +68,14 @@ export class VideoPlayer{
 
 
 
+
   /**
    * Handles click event for the "Add subtitle button"
    * @return {[type]} [description]
    */
   onAddSubBtnClicked(){
 
-    var tempFileInput = $('<input/>').attr('type', 'file');
+    var tempFileInput = $('<input/>').attr('type', 'file').attr('accept','.vtt,.srt');
     tempFileInput.change(this.onSubChanged.bind(this));
 
     //Open the file dialog to select subtitle
@@ -88,9 +91,35 @@ export class VideoPlayer{
   onSubChanged(e){
 
     var 
-    file    = e.target.files[0],
-    fileUrl = window.URL.createObjectURL(file);
+    file       = e.target.files[0],
+    fileExt    = file.name.slice(-3),
+    fileUrl;
 
+    //Convert to .vtt if the selected file is .srt
+    if(fileExt=="srt"){
+
+      //a .srt file is selected
+      //covert it and enable it
+      this.setSrtSubtitle(file);
+    }else if(fileExt=="vtt"){
+
+      //.vtt is selected, no coversion required
+      fileUrl    = window.URL.createObjectURL(file),
+      this.setSubtitle(fileUrl);
+    }else{
+
+
+      Utilities.notifyError("Only .srt and .vtt files are supported as subtitles");
+    }
+  }
+
+
+
+  /**
+   * Sets a given ur as the subtitle of the playing video, removes old ones
+   * @param {string} url remote url to be used as source for the subtitle
+   */
+  setSubtitle(fileUrl){
     //Remove old tracks
     var oldTracks = this.player.remoteTextTracks();
     var i = oldTracks.length;
@@ -106,6 +135,29 @@ export class VideoPlayer{
   }
 
 
+  /**
+   * converts a .srt subtitle file to .vtt file and activates it 
+   * @param  {file} file selected subtitle file
+   */
+  setSrtSubtitle(file){
+    var _ = this;
+    const vttConverter = new VTTConverter(file);
+
+    vttConverter
+    .getURL()
+    .then(function(url) { 
+
+      //.vtt generated      
+      //Enable the subtitles
+      _.setSubtitle(url);
+    })
+    .catch(function(err) {
+
+      //Error occured during conversion
+      Utilities.notifyError("Selected .srt file seems to be invalid");
+      console.error(err);
+    })
+  }
 
   /**
    * Handles videojs player events and notifies peers about the event 
