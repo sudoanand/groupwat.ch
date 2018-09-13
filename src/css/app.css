@@ -24,6 +24,7 @@ li.nav-item {
 .video-js{
 	width: 640px;
 	height: 264px;
+	max-width: 100%;
 }
 
 .socket_log{
