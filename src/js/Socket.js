@@ -12,11 +12,9 @@ import {Utilities} from './Utilities'
  * socket constructor
  * @param  {string} SOCKET_SERVER Hostname of the socket server
  */
-export const Socket = function(socket_server,socket_port){
+export const Socket = function(socket_server){
 
-  var port = socket_port || 12345;
-
-  this.wsUri      = "ws://"+socket_server+":"+socket_port;  
+  this.wsUri      = socket_server;  
   this.websocket  = new WebSocket(this.wsUri);
 
   this.websocket.onopen     = Utilities.onSocketConnected.bind(this);  

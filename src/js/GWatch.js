@@ -20,19 +20,18 @@ class GWatch{
 
         //options and config
         this.config = {
-            demo_socket_server :  's1.site4m.com',
+            demo_socket_server :  'wss://s1.site4m.com/wss2/',
             videoId :  options.videoId || 'my-video',
             videoSelector : options.videoSelector || $("#video-selector"),
             videoSrcElement : options.videoSrcElement || $("#my-video-src"),
             devmode : options.devmode || false,
-            socket_server : options.socket_server || window.location.hostname,
-            socket_port : options.socket_port ||12345,
+            socket_server : options.socket_server || 'ws://'+window.location.hostname+':12345',
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ console.error("socket connection failed");}
         };
 
 
-        //Enable demo socket server if its the github page
+        //Enable demo socket server if its the github pageg
         if(window.location.hostname=="groupwat.ch"){
             this.config.socket_server = this.config.demo_socket_server;
         }
@@ -53,7 +52,7 @@ class GWatch{
         Utilities.session_identifier = this.generateConnectionId();                         //A unique identifier for the socket connection    
         Utilities.onSocketConnected = this.config.onSocketConnected; 
         Utilities.onSocketError     = this.config.onSocketError;
-        Utilities.websocket = new Socket(this.config.socket_server,this.config.socket_port).websocket;   //Initialize the socket class    
+        Utilities.websocket = new Socket(this.config.socket_server).websocket;   //Initialize the socket class    
     }
 
 
