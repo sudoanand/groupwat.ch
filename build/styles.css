@@ -1,1 +1,1 @@
-#video_container{display:none}.vjs-custom-icon{cursor:pointer;font-size:medium}.nav-item{margin:10px}.vjs-custom-icon .icon{position:absolute;top:7px}
+#video_container{display:block}.vjs-custom-icon{cursor:pointer;font-size:medium}li.nav-item{margin:0 10px}#video_container{display:inline-block;width:auto}.vjs-custom-icon .icon{position:absolute;top:7px}.video-js{height:264px;max-width:100%;width:640px}.socket_log{margin:40px auto}
