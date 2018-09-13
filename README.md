@@ -17,7 +17,7 @@ It's very easy to run groupwat.ch on your server (or localhost), it needs `php-c
 - Step 2: Start the websocket server by running `php -q socket_server/server.php`
 
 That's it, now visit the index.html page and if all went well, you will see: 
-`Socket connected, Connection id: XXXXXXX` 
+`Socket connected!` 
 
 If your socket connection fails that means , either:
 - socket is not running, run it by step 2
