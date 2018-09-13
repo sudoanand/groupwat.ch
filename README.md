@@ -3,7 +3,7 @@ Make your own video room to watch videos remotely with all your friends
 ### Demo
 Here's a demo : <https://groupwat.ch/example.html>
 
-Please note many people might be using the demo page in real-time. Therefore when they pause, play or seek a video, it reflects on your end too.
+Please note that many people might be using the demo page in real-time. Therefore when they pause, play or seek a video, the same reflects on your end too.
 
 ### Features
 
