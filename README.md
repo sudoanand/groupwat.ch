@@ -1,7 +1,7 @@
 # GroupWat.ch
 Make your own video room to watch videos remotely with all your friends
 
-### Features
+### gFeatures
 
 - Play videos  in sync with people from anywhere on the globe
 - Support .srt and .vtt subtitles, can be added from your local disk
@@ -11,7 +11,7 @@ Make your own video room to watch videos remotely with all your friends
 - Handy to use as a standalone in your web-browser
 
 ## Installation
-It's very easy to run groupwat.ch on your server, it needs `php-cli` installed.
+It's very easy to run groupwat.ch on your server (or localhost), it needs `php-cli` installed.
 
 - Step 1 : Clone the repo or [Download Zip](https://github.com/hack4mer/groupwat.ch/archive/master.zip) archive
 - Step 2: Start the websocket server by running `php -q socket_server/server.php`
