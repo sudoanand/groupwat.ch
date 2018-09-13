@@ -1,7 +1,7 @@
 # GroupWat.ch
 Make your own video room to watch videos remotely with all your friends
 
-### gFeatures
+### Features
 
 - Play videos  in sync with people from anywhere on the globe
 - Support .srt and .vtt subtitles, can be added from your local disk
