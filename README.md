@@ -34,10 +34,12 @@ If your socket connection fails that means , either:
 - socket is not running, run it by following step 2
 - or, you are connecting to the socket through "ws" protocol from "https" version of your website which requires "wss"; Try with http.
 - or,  your firewall is blocking the port on which the websocket is running (12345 by default)
+
+ 
 ### Configuration
 Following are configuration options available for the `GWatch` API
 Option  | Description | Default value
-------------- | --------------------- | -------------
+------------- | ------------- | -------------
 socket_server       | Complete URL of the socket server | `'ws://'+window.location.hostname+':12345'`
 devmode             | Devevelopment mode, informative console logs are disabled is set to false | false
 onSocketConnected   | Function to be fired when socket connection is succesful | `function(){ console.log("socket connected");}`
