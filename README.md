@@ -62,8 +62,6 @@ Backend for this project is the socket server written in `socket_server/server.p
 	$allowed_origins = ["*"]; //Set allowed origins here, by default all origins are allowed to connect
 
 
-The demo server has the following allowed_origin setting: 
-`$allowed_origins = ["*.groupwat.ch","*.anand.today"];`
 
 License
 ----
