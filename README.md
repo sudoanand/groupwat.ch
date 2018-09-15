@@ -39,7 +39,7 @@ If your socket connection fails that means , either:
 ### Configuration
 Following are configuration options available for the `GWatch` API
 
-| Option        				| Option       																	| Default value  |
+| Option        				| Description       															| Default value  |
 | ----------------------------- | ----------------------------------------------------------------------------- | ----- |
 | socket_server      			| Complete URL of the socket server 											|	 `'ws://'+window.location.hostname+':12345'` |
 | devmode      					| Devevelopment mode, informative console logs are disabled is set to false   	|   false |
