@@ -20,21 +20,15 @@ class GWatch{
 
         //options and config
         this.config = {
-            demo_socket_server :  'wss://s1.site4m.com/wss2/',
             videoId :  options.videoId || 'my-video',
-            videoSelector : options.videoSelector || $("#video-selector"),
-            videoSrcElement : options.videoSrcElement || $("#my-video-src"),
+            videoSelector : options.videoSelector ? $("#"+options.videoSelector) : $("#video-selector"),
+            videoSrcElement : options.videoSrcElement ? $("#"+options.videoSrcElement)  : $("#my-video-src"),
             devmode : options.devmode || false,
             socket_server : options.socket_server || 'ws://'+window.location.hostname+':12345',
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ console.error("socket connection failed");}
         };
 
-
-        //Enable demo socket server if its the github pageg
-        if(window.location.hostname=="groupwat.ch"){
-            this.config.socket_server = this.config.demo_socket_server;
-        }
 
         //A placeholder for an instance of the VideoPlayer
         this.video = null;
