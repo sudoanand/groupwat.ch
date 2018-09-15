@@ -65,7 +65,7 @@ while (true) {
 		if ($buf === false) { // check disconnected client
 			// remove client for $clients array
 			$found_socket = array_search($changed_socket, $clients);
-			socket_getpeername($changed_socket, $ip);
+			@socket_getpeername($changed_socket, $ip);
 			unset($clients[$found_socket]);
 			
 			//notify all users about disconnected connection
