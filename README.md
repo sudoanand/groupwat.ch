@@ -37,6 +37,7 @@ If your socket connection fails that means , either:
 
  
 ### Configuration
+#### Front-end configurations 
 Following are configuration options available for the `GWatch` API
 
 | Option        				| Description       															| Default value  |
@@ -49,7 +50,19 @@ Following are configuration options available for the `GWatch` API
 | videoSelector 				| ID of the input box for selecting the video file      						|    video-selector |
 | videoSrcElement				| ID of the "source" tag inside the "video" tag      							|    my-video-src |
 
+Check `example.html` for demo usage.
 
+#### Backend/Socket server configurations
+Backend for this project is the socket server written in `socket_server/server.php` and first few lines of the php code contain the settings for the server.
+
+    <?php
+    $host = '0.0.0.0'; //Generally, changing this is not necessary
+    $port = 12345; //Port on which the socket server will listen to the requests
+
+    $allowed_origins = ["*"]; //Set allowed origins here, by default host is able to connect to this server
+
+The demo server has the following allowed_origin setting: 
+`$allowed_origins = ["*.groupwat.ch","*.anand.today"];`
 
 License
 ----
