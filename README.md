@@ -57,6 +57,10 @@ Colons can be used to align columns.
 | socket_server      | right-aligned | $1600 |
 | devmode      | centered      |   $12 |
 | onSocketConnected | are neat      |    $1 |
+| onSocketError | are neat      |    $1 |
+| videoId | are neat      |    $1 |
+| videoSelector | are neat      |    $1 |
+| videoSrcElement | are neat      |    $1 |
 
 
 
