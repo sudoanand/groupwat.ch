@@ -54,13 +54,13 @@ Colons can be used to align columns.
 
 | Option        | Option        | Default value  |
 | ------------- | ------------- | ----- |
-| socket_server      	| Complete URL of the socket server 											|	 $1600 |
-| devmode      			| Devevelopment mode, informative console logs are disabled is set to false   	|   $12 |
-| onSocketConnected 	| Function to be fired when socket connection is succesful      				|    $1 |
-| onSocketError 		| Function to be fired when socket connection fails      						|    $1 |
-| videoId 				| ID of the video element      													|    $1 |
-| videoSelector 		| ID of the input box for selecting the video file      						|    $1 |
-| videoSrcElement		| ID of the "source" tag inside the "video" tag      							|    $1 |
+| socket_server      	| Complete URL of the socket server 											|	 `'ws://'+window.location.hostname+':12345'` |
+| devmode      			| Devevelopment mode, informative console logs are disabled is set to false   	|   false |
+| onSocketConnected 	| Function to be fired when socket connection is succesful      				|    `function(){ console.log("socket connected");` |
+| onSocketError 		| Function to be fired when socket connection fails      						|    `function(){ console.error("socket connection failed");}` |
+| videoId 				| ID of the video element      													|    my-video |
+| videoSelector 		| ID of the input box for selecting the video file      						|    video-selector |
+| videoSrcElement		| ID of the "source" tag inside the "video" tag      							|    my-video-src |
 
 
 
