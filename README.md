@@ -54,13 +54,13 @@ Colons can be used to align columns.
 
 | Option        | Option        | Default value  |
 | ------------- | ------------- | ----- |
-| socket_server      | right-aligned | $1600 |
-| devmode      | centered      |   $12 |
-| onSocketConnected | are neat      |    $1 |
-| onSocketError | are neat      |    $1 |
-| videoId | are neat      |    $1 |
-| videoSelector | are neat      |    $1 |
-| videoSrcElement | are neat      |    $1 |
+| socket_server      	| Complete URL of the socket server 											|	 $1600 |
+| devmode      			| Devevelopment mode, informative console logs are disabled is set to false   	|   $12 |
+| onSocketConnected 	| Function to be fired when socket connection is succesful      				|    $1 |
+| onSocketError 		| Function to be fired when socket connection fails      						|    $1 |
+| videoId 				| ID of the video element      													|    $1 |
+| videoSelector 		| ID of the input box for selecting the video file      						|    $1 |
+| videoSrcElement		| ID of the "source" tag inside the "video" tag      							|    $1 |
 
 
 
