@@ -38,15 +38,25 @@ If your socket connection fails that means , either:
  
 ### Configuration
 Following are configuration options available for the `GWatch` API
-Option  | Description | Default value
-------------- | ------------- | -------------
-socket_server       | Complete URL of the socket server | `'ws://'+window.location.hostname+':12345'`
+Option  			| Description 															| Default value
+------------------- | --------------------------------------------------------------------- | -------------
+socket_server       | Complete URL of the socket server   									| `'ws://'+window.location.hostname+':12345'`
 devmode             | Devevelopment mode, informative console logs are disabled is set to false | false
-onSocketConnected   | Function to be fired when socket connection is succesful | `function(){ console.log("socket connected");}`
-onSocketError       | Function to be fired when socket connection fails | `function(){ console.error("socket connection failed");}`
-videoId             |  ID of the video element | my-video
-videoSelector       | ID of the input box for selecting the video file | video-selector
-videoSrcElement     | ID of the "source" tag inside the "video" tag | my-video-src
+onSocketConnected   | Function to be fired when socket connection is succesful 				| `function(){ console.log("socket connected");}`
+onSocketError       | Function to be fired when socket connection fails 					| `function(){ console.error("socket connection failed");}`
+videoId             |  ID of the video element 												| my-video
+videoSelector       | ID of the input box for selecting the video file 						| video-selector
+videoSrcElement     | ID of the "source" tag inside the "video" tag 						| my-video-src
+
+### Test
+
+Colons can be used to align columns.
+
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
 
 
 
