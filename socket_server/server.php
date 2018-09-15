@@ -3,7 +3,7 @@ $host = '0.0.0.0'; //host
 $port = 12345; //port
 $null = NULL; //null var
 
-$allowed_origins = ["*"]; //Set allowed origins here, by default everyone is able to connect to this server
+$allowed_origins = ["*"]; //Set allowed origins here, by default all origins are allowed to connect
 
 //Create TCP/IP sream socket
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);

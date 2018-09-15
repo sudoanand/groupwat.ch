@@ -59,7 +59,8 @@ Backend for this project is the socket server written in `socket_server/server.p
     $host = '0.0.0.0'; //Generally, changing this is not necessary
     $port = 12345; //Port on which the socket server will listen to the requests
 
-    $allowed_origins = ["*"]; //Set allowed origins here, by default host is able to connect to this server
+	$allowed_origins = ["*"]; //Set allowed origins here, by default all origins are allowed to connect
+
 
 The demo server has the following allowed_origin setting: 
 `$allowed_origins = ["*.groupwat.ch","*.anand.today"];`
