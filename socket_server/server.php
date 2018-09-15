@@ -3,6 +3,8 @@ $host = '0.0.0.0'; //host
 $port = 12345; //port
 $null = NULL; //null var
 
+$allowed_origins = ["*"];
+
 //Create TCP/IP sream socket
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 //reuseable port
@@ -126,6 +128,8 @@ function mask($text)
 //handshake new client.
 function perform_handshaking($receved_header,$client_conn, $host, $port)
 {
+	global $allowed_origins;
+
 	$headers = array();
 	$lines = preg_split("/\r\n/", $receved_header);
 	foreach($lines as $line)
@@ -137,6 +141,21 @@ function perform_handshaking($receved_header,$client_conn, $host, $port)
 		}
 	}
 
+	$allow_handshake = false;
+
+	//Allow handshake from allowed origin only
+	foreach ($allowed_origins as $key => $value) {
+		if(fnmatch($value, $headers['Origin'])){
+			$allow_handshake = true;
+		}
+	}
+
+
+	if(!$allow_handshake){
+		echo "Socket connection denied due to disallowed origin.\n";
+		return ;		
+	}
+
 	$secKey = $headers['Sec-WebSocket-Key'];
 	$secAccept = base64_encode(pack('H*', sha1($secKey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
 	//hand shaking header
@@ -144,7 +163,6 @@ function perform_handshaking($receved_header,$client_conn, $host, $port)
 	"Upgrade: websocket\r\n" .
 	"Connection: Upgrade\r\n" .
 	"WebSocket-Origin: $host\r\n" .
-	"WebSocket-Location: ws://$host:$port/demo/shout.php\r\n".
 	"Sec-WebSocket-Accept:$secAccept\r\n\r\n";
 	socket_write($client_conn,$upgrade,strlen($upgrade));
 }
