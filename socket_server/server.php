@@ -52,10 +52,19 @@ while (true) {
 			$received_text = unmask($buf); //unmask data
 			$tst_msg = json_decode($received_text, true); //json decode 
 	
-			//prepare data to be sent to client
-			$response_text = mask($tst_msg);
-			send_message($response_text); //send data
-			break 2; //exist this loop
+
+
+
+			if(!empty($tst_msg)){
+
+				$tst_msg = json_encode($tst_msg);
+
+
+				//prepare data to be sent to client
+				$response_text = mask($tst_msg);
+				send_message($response_text); //send data
+				break 2; //exist this loop
+			}
 		}
 		
 		$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);

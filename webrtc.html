@@ -89,7 +89,8 @@
                 console.log(error);
             }
 
-            function gotMessageFromServer(message) {                                
+            function gotMessageFromServer(message) {                   
+
                 if(!message.data){ return ;}
                 
                 var signal = JSON.parse(message.data);
@@ -97,6 +98,8 @@
                 if(signal.type=="system"){ return ;}
 
                 if(!peerConnection) start(false);
+
+                console.log(signal);
 
                 if(signal.sdp) {
                     peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp), function() {
