@@ -27,6 +27,8 @@ Follow these steps to run groupwat.ch on your server (or localhost), it needs `p
 
 NOTE: replace yourdomain.com with your server's hostname and `12345` with the port on which the socket server is running; port of the socket can be configured in the "socket_server/server.php" file.
 
+For SSL setup with the localhost environment using the files in `ssl_certs`, follow this blog : https://medium.freecodecamp.org/how-to-get-https-working-on-your-local-development-environment-in-5-minutes-7af615770eec
+
 That's it, now visit the example.html page and if all went well, you will see: 
 `Socket connected!` 
 
