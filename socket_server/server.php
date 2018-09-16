@@ -51,12 +51,9 @@ while (true) {
 		{
 			$received_text = unmask($buf); //unmask data
 			$tst_msg = json_decode($received_text, true); //json decode 
-			$user_name = $tst_msg['name']; //sender name
-			$msg_key = $tst_msg['key']; //message text
-			$msg_val = $tst_msg['value']; //color
-			
+	
 			//prepare data to be sent to client
-			$response_text = mask(json_encode(array('type'=>'usermsg', 'name'=>$user_name, 'key'=>$msg_key, 'value'=>$msg_val)));
+			$response_text = mask($tst_msg);
 			send_message($response_text); //send data
 			break 2; //exist this loop
 		}
