@@ -1,0 +1,15 @@
+{
+    "name": "hack4mer/groupwat.ch",
+    "description": "Make your own video room to watch videos remotely with all your friends",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hack4mer",
+            "email": "andy@hack4m.com"
+        }
+    ],
+    "require": {
+        "cboden/Ratchet": "0.3.*"
+    }
+}
