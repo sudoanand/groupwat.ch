@@ -1,6 +1,10 @@
 <?php
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use Ratchet\Server\IoServer;
+use Ratchet\Http\HttpServer;
+use Ratchet\WebSocket\WsServer;
+use ChatApp\Chat;
 
 // Make sure composer dependencies have been installed
 require __DIR__ . '/../vendor/autoload.php';
@@ -37,8 +41,13 @@ class GWatchSocketServer implements MessageComponentInterface {
     }
 }
 
-// Run the server application through the WebSocket protocol on port 8080
-$app = new Ratchet\App('localhost', 12345);
-$app->route('/', new GWatchSocketServer);
-$app->route('/echo', new Ratchet\Server\EchoServer, array('*'));
-$app->run();
+$server = IoServer::factory(
+    new HttpServer(
+        new WsServer(
+            new GWatchSocketServer()
+        )
+    ),
+    12345
+);
+
+$server->run();
