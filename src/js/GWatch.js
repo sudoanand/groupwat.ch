@@ -21,10 +21,11 @@ class GWatch{
 
         //options and config
         this.config = {
+            videoCall : options.videoCall || false,
+            devmode : options.devmode || false,
             videoElement :  options.videoId ? $("#"+options.videoId) : $('#my-video'),
             videoSelector : options.videoSelector ? $("#"+options.videoSelector) : $("#video-selector"),
             videoSrcElement : options.videoSrcElement ? $("#"+options.videoSrcElement)  : $("#my-video-src"),
-            devmode : options.devmode || false,
             socket_server : options.socket_server || 'ws://'+window.location.hostname+':12345',
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ console.error("socket connection failed");}
@@ -40,17 +41,22 @@ class GWatch{
         //Attach jQuery UI events to the dom elements
         this.initializeUIEvents();        
 
-        //Start the videocall
-        this.startVideoCall = new WebRTC().start;
 
 
 
         //Set utility options
-        Utilities.logging = this.config.devmode;                                            // If the logs should appera in the console
-        Utilities.session_identifier = this.generateConnectionId();                         //A unique identifier for the socket connection    
-        Utilities.onSocketConnected = this.config.onSocketConnected; 
-        Utilities.onSocketError     = this.config.onSocketError;
-        Utilities.websocket = new Socket(this.config.socket_server).websocket;   //Initialize the socket class    
+        Utilities.logging               = this.config.devmode;                     // If the logs should appera in the console
+        Utilities.session_identifier    = this.generateConnectionId();             //A unique identifier for the socket connection    
+        Utilities.onSocketConnected     = this.config.onSocketConnected; 
+        Utilities.onSocketError         = this.config.onSocketError;
+        Utilities.mSocket               = new Socket(this.config.socket_server);   //Initialize the socket class    
+        Utilities.websocket             = Utilities.mSocket.websocket;             //A global variable containing websocket connection object    
+
+
+        if(this.config.videoCall){            
+            //Initialzie the webrtc class and expose it as a public property of this class        
+            this.webRTC = new WebRTC();
+        }
     }
 
 
@@ -105,9 +111,11 @@ class GWatch{
         }
     }
 
+
+    /**
+    * Makes the main video player visible
+    */
     showVideoContainer(){
-
-
         //Show video container
         this.config.videoElement.parent().fadeIn();
     }

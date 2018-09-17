@@ -6,9 +6,17 @@ const ExtractStyles = new ExtractTextPlugin({filename: 'styles.css'});
 module.exports = {
   devServer: {
     https: true,
-    key: fs.readFileSync(__dirname+'/ssl/server.key'),
-    cert: fs.readFileSync(__dirname+'/ssl/server.crt'),
-    ca: fs.readFileSync(__dirname+'/ssl/ca.pem'),
+   
+
+   /**
+    * Use following setttings if you wish to use self-signed certificates for the localhost dev-server
+    * For a guide on how to generate self signed-ssl certs for localhost
+    * See: https://medium.freecodecamp.org/how-to-get-https-working-on-your-local-development-environment-in-5-minutes-7af615770eec
+    */
+
+    // key: fs.readFileSync(__dirname+'/path/to/server.key'),
+    // cert: fs.readFileSync(__dirname+'/path/to/server.crt'),
+    // ca: fs.readFileSync(__dirname+'/path/to/ca.pem'),
   },
   entry: path.resolve(__dirname,'./src/js/GWatch.js'),
   mode: 'development',
@@ -40,3 +48,6 @@ module.exports = {
     ExtractStyles
   ]
 };
+
+
+console.log("NOTE : \n - This project requires HTTPS   \n - Even the dev-server is running on HTTPS  \n - You need to accept the unsecure SSL warning \n - Not mandatory, but if you wish to remove the warning, have a look at webpack.dev.js\n\n");

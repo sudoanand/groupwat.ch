@@ -6,12 +6,35 @@
     </head>
 
     <body>
-        <video id="localVideo" autoplay muted style="width:40%;"></video>
-        <video id="remoteVideo" autoplay style="width:40%;"></video>
+
+        <center style="margin-top:50px">
+
+
+            <div id="video_container">
+              <video controls id="my-video" class="video-js" controls="" preload="auto" width="640" height="264">
+                <source id="my-video-src" src="" type="video/mp4">
+
+                <p class="vjs-no-js">
+                  To view this video please enable JavaScript, and consider upgrading to a web browser that
+                  <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                </p>
+              </video>
+            </div>
+
+
+            <br/>
+
+            <input type="file" name="video-selector"  id="video-selector">
+
+            <div id="log"></div>
+        </center>
+
+        <video class="mirrored_video" id="localVideo" autoplay muted style="width:40%;"></video>
+        <video class="mirrored_video" id="remoteVideo" autoplay style="width:40%;"></video>
 
         <br />
 
-        <input type="button" id="start" onclick="start(true)" value="Start Video"></input>
+        <input type="button" id="start" onclick="mGWatch.webRTC.startVideoCall(true)" value="Start Video"></input>
 
 
 
@@ -21,7 +44,8 @@
         <script src="../build/bundle.js"></script>
         <script type="text/javascript">
         var config = {
-          devmode: true
+          devmode: true,
+          videoCall: true
         }
 
         var mGWatch = new GWatch(config);

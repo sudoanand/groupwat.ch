@@ -1,6 +1,6 @@
 /**
  * Socket.js
- * A controller for the WebSocket events and communications
+ * A controller for the WebSocket events and communications for the video player 
  * @author Anand Singh <@hack4mer> https://anand.today
  */ 
 
@@ -27,7 +27,9 @@ export const Socket = function(socket_server){
 
 Socket.prototype.onMessage = function(ev){
 
-  var response    = JSON.parse(ev.data); //PHP sends Json data
+  if(!Utilities.video){ return;} //Video has not been initialized yet
+
+  var response    = JSON.parse(ev.data); //Server sends Json string
 
 
   //Do not notify others about this player event since it was triggered by someone else

@@ -2,6 +2,13 @@
 	display: block;
 }
 
+.mirrored_video
+{
+    transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+}
+
 .vjs-custom-icon{
 	font-size: initial;
 	cursor: pointer;
