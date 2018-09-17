@@ -1,5 +1,5 @@
 /**
- * Gwatch
+ * Gwatch.js
  * A controller class for the vidoe player and index page functionalities
  * @author Anand Singh <@hack4mer> https://anand.today
  */
@@ -7,6 +7,7 @@ import {VideoPlayer} from './VideoPlayer'
 import $ from 'jquery';
 import {Socket} from './Socket'
 import {Utilities} from './Utilities'
+import {WebRTC} from './WebRTC'
 import styles from '../css/app.css'
 
 /**
@@ -20,7 +21,7 @@ class GWatch{
 
         //options and config
         this.config = {
-            videoId :  options.videoId || 'my-video',
+            videoElement :  options.videoId ? $("#"+options.videoId) : $('#my-video'),
             videoSelector : options.videoSelector ? $("#"+options.videoSelector) : $("#video-selector"),
             videoSrcElement : options.videoSrcElement ? $("#"+options.videoSrcElement)  : $("#my-video-src"),
             devmode : options.devmode || false,
@@ -34,11 +35,14 @@ class GWatch{
         this.video = null;
 
         //show the video player
-        $("#my-video").show();
-
+        this.showVideoContainer();
 
         //Attach jQuery UI events to the dom elements
         this.initializeUIEvents();        
+
+        //Start the videocall
+        this.startVideoCall = new WebRTC().start;
+
 
 
         //Set utility options
@@ -99,15 +103,13 @@ class GWatch{
             Utilities.player.src({type:'video/mp4', src:newSrc});
             Utilities.player.load();
         }
-
-        this.showVideoContainer();
     }
 
     showVideoContainer(){
 
 
         //Show video container
-        $("#"+this.config.videoId).parent().fadeIn();
+        this.config.videoElement.parent().fadeIn();
     }
 
     /**

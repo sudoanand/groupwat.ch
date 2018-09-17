@@ -5,8 +5,10 @@
 export  class Utilities{
 
 
+
 	constructor(){
 		this.logging = false;
+        this.notifyPeers = true;
 	}
 
 	/**

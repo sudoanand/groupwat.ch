@@ -28,25 +28,15 @@ export const Socket = function(socket_server){
 Socket.prototype.onMessage = function(ev){
 
   var response    = JSON.parse(ev.data); //PHP sends Json data
- 
-
-  if(response.name==Utilities.session_identifier || !Utilities.video){
-    //This is a message from self
-    //or the video is not initialized yet
-    //Hence, ignore
-    return;
-  }
 
 
-  //Do not notify others about this seek event since it was triggered by someone else
+  //Do not notify others about this player event since it was triggered by someone else
   Utilities.video.notifyPeers = false; 
   
   Utilities.log("Socket message received:",Utilities.video.notifyPeers); 
   if(Utilities.logging){
     console.log(response);
   }
-
-
 
 
   if(response.key=="seek_value"){
