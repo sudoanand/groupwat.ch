@@ -21,15 +21,26 @@ class GWatch{
 
         //options and config
         this.config = {
+            container : options.container || false,
             videoCall : options.videoCall || false,
             devmode : options.devmode || false,
-            videoElement :  options.videoId ? $("#"+options.videoId) : $('#my-video'),
+
             videoSelector : options.videoSelector ? $("#"+options.videoSelector) : $("#video-selector"),
-            videoSrcElement : options.videoSrcElement ? $("#"+options.videoSrcElement)  : $("#my-video-src"),
             socket_server : options.socket_server || 'ws://'+window.location.hostname+':12345',
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
-            onSocketError : options.onSocketError || function(){ console.error("socket connection failed");}
+            onSocketError : options.onSocketError || function(){ console.error("socket connection failed");},
+
+            mainPlayerId : "GWatch_mainPlayer",
+            mainPlayerSrcId : "GWatch_mainPlayerSrc",
+            containerClass : "GWatch_container",
         };
+
+        if(!this.config.container){
+            console.error("Please specify the container option to the GWatch initialization.");
+            return;
+        }
+
+        this.containerEle  = document.getElementById(options.container);
 
 
         //A placeholder for an instance of the VideoPlayer
@@ -38,6 +49,10 @@ class GWatch{
         //show the video player
         this.showVideoContainer();
 
+
+        //Creates the required dom elements
+        this.initializeUIElements();
+
         //Attach jQuery UI events to the dom elements
         this.initializeUIEvents();        
 
@@ -45,6 +60,7 @@ class GWatch{
 
 
         //Set utility options
+        Utilities.config               = this.config;                     // If the logs should appera in the console
         Utilities.logging               = this.config.devmode;                     // If the logs should appera in the console
         Utilities.session_identifier    = this.generateConnectionId();             //A unique identifier for the socket connection    
         Utilities.onSocketConnected     = this.config.onSocketConnected; 
@@ -57,6 +73,40 @@ class GWatch{
             //Initialzie the webrtc class and expose it as a public property of this class        
             this.webRTC = new WebRTC();
         }
+    }
+
+
+    initializeUIElements(){
+        //Add the container class
+        this.containerEle.classList.add(this.config.containerClass);
+
+        //Setup the main video player
+        //Create video tag
+        this.mainVideoPlayer = document.createElement("video");
+        this.mainVideoPlayer.setAttribute("controls",true);
+        this.mainVideoPlayer.setAttribute("id",this.config.mainPlayerId);
+        this.mainVideoPlayer.setAttribute("class","video-js");
+        this.mainVideoPlayer.setAttribute("fullscreen","false");
+        this.mainVideoPlayer.setAttribute("preload","auto");
+//        this.mainVideoPlayer.setAttribute("width","640");
+//        this.mainVideoPlayer.setAttribute("height","264");
+
+        //Create source tag
+        this.mainVideoPlayerSrc = document.createElement("source");
+        this.mainVideoPlayerSrc.setAttribute("id",this.config.mainVideoPlayerSrcId);
+        this.mainVideoPlayerSrc.setAttribute("src","");
+        this.mainVideoPlayerSrc.setAttribute("type","video/mp4");
+
+        //Create no js support tag
+        this.mainVideoPlayerP = document.createElement("p");
+        this.mainVideoPlayerP.setAttribute("class","vjs-no-js");
+        this.mainVideoPlayerP.innerHTML = 'To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>';
+
+        //Add the video tag in the container
+        this.mainVideoPlayer.appendChild(this.mainVideoPlayerSrc); // Add the source tag inside the video tag
+        this.mainVideoPlayer.appendChild(this.mainVideoPlayerP); // Add the p tag inside the video tag
+        this.containerEle.appendChild(this.mainVideoPlayer); //Add the video tag inside the container
+        
     }
 
 
@@ -95,7 +145,7 @@ class GWatch{
         Utilities.log("Changing player's source");
 
         //Change src element
-        this.config.videoSrcElement.attr("src",newSrc);
+        document.getElementById(this.config.mainVideoPlayerSrcId).setAttribute("src",newSrc);
 
         if(typeof Utilities.player=="undefined"){
 
@@ -117,7 +167,7 @@ class GWatch{
     */
     showVideoContainer(){
         //Show video container
-        this.config.videoElement.parent().fadeIn();
+        //this.config.videoElement.parent().fadeIn();
     }
 
     /**

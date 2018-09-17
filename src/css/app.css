@@ -2,11 +2,33 @@
 	display: block;
 }
 
+.GWatch_container{
+    position: relative;
+    width: 100%;
+}
+
 .mirrored_video
 {
     transform: rotateY(180deg);
     -webkit-transform:rotateY(180deg); /* Safari and Chrome */
     -moz-transform:rotateY(180deg); /* Firefox */
+}
+
+.fullscreen_vidjs .video-js{
+	width: 100%;
+	height:98%;
+}
+
+#GWatch_camContainer {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    display: inline-block;
+}
+
+#GWatch_camContainer video{
+	z-index: 1;
+	position: relative;
 }
 
 .vjs-custom-icon{

@@ -15,7 +15,13 @@ import VTTConverter from 'srt-webvtt';
 export class VideoPlayer{
 
   constructor(){
-    var options = {};
+    var options = {
+      controlBar: {
+        fullscreenToggle: false
+      }
+    };
+
+    this.fullscreenmode = false;
 
     this.lastSeekValue = 0;
     this.videoSeeking = 0;
@@ -25,7 +31,8 @@ export class VideoPlayer{
     this.notifyPeers = true;
 
     //Initialize the videojs player
-    this.player = videojs('my-video', options, this.onPlayerReady.bind(this));
+    console.log(Utilities.config.mainPlayerId);
+    this.player = videojs(Utilities.config.mainPlayerId, options, this.onPlayerReady.bind(this));
 
     //Add subtitle button
     this.addNewButton({
@@ -33,7 +40,53 @@ export class VideoPlayer{
       "icon":"icon-speech",
       "title":"Add subtitle",
     },this.onAddSubBtnClicked.bind(this));
+
+    //Add subtitle button
+    this.addNewButton({
+      "id":"fullScreenToogleBtn",
+      "icon":"icon-size-fullscreen",
+      "title":"Toggle fullscreen mode",
+    },this.toggleFullScreen.bind(this));
   }
+
+  /**
+   * Toggles the container to fullscreen
+   */
+  toggleFullScreen(){
+    var video_con = document.getElementById(Utilities.config.container);
+
+    if(this.fullscreenmode){
+
+      //Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+      } else if (document.webkitCancelFullScreen) {
+          document.webkitCancelFullScreen();
+      }
+
+      this.fullscreenmode =false;
+      video_con.classList.remove("fullscreen_vidjs");
+
+    }else{    
+
+      //Enter fullscreen
+      if (video_con.requestFullscreen) {
+          video_con.requestFullscreen();
+          this.fullscreenmode = true;
+      } else if (video_con.mozRequestFullScreen) {
+          video_con.mozRequestFullScreen();
+          this.fullscreenmode = true;          
+      } else if (video_con.webkitRequestFullscreen) {
+          video_con.webkitRequestFullscreen();
+          this.fullscreenmode = true;          
+      }
+
+        video_con.classList.add("fullscreen_vidjs");
+    }
+  }
+
 
   /**
    * Adds new button to the player
