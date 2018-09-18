@@ -35,6 +35,7 @@ class GWatch{
             mainPlayerId : "GWatch_mainPlayer",
             mainPlayerSrcId : "GWatch_mainPlayerSrc",
             containerClass : "GWatch_container",
+            chatBoxPaperClass : "GWatch_chatBoxPaper",
         };
 
         if(!this.config.container){
@@ -174,17 +175,26 @@ class GWatch{
         this.chatBox = document.createElement("div");
         this.chatBoxInput = document.createElement("input");
         this.chatBoxInput.setAttribute("type","text");
-        this.chatBox.appendChild(this.chatBoxInput);
+        this.chatBoxInput.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+               this.sendChat(this.chatBoxInput.value);
+            }
+        }.bind(this));
 
-        this.chatBoxPaper = document.createElement("p");
-        this.chatBoxPaper.setAttribute("id","GWatch_chatBoxPaper")
+
+        this.chatBoxPaper = document.createElement("div");
+        this.chatBoxPaper.setAttribute("class",this.config.chatBoxPaperClass);
+
+        //Chat box 
+        this.chatBox.appendChild(this.chatBoxInput);
+        this.chatBox.appendChild(this.chatBoxPaper);
 
         //Add all of the above to panel container
         this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
         this.videoCallPanel.appendChild(this.videoCallPanelResizer);
         this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
         this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
-        //this.videoCallPanel.appendChild(this.chatBox);
+        this.videoCallPanel.appendChild(this.chatBox);
 
         //Add the video panel to dom
         this.containerEle.appendChild(this.videoCallPanel);
@@ -214,6 +224,31 @@ class GWatch{
 
 
         return videoHolder;
+    }
+
+
+    sendChat(message){
+
+        var chatMsg = document.createElement("p");
+        chatMsg.innerHTML = message
+        chatMsg.style.color = "blue";
+
+        var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
+        chatHolder.appendChild(chatMsg);
+        chatHolder.scrollTop = chatHolder.scrollHeight;
+
+        this.chatBoxInput.value = "";
+
+        //Send chat
+        var socketPayload = {
+            name: Utilities.session_identifier,
+            key: "chat",
+            value : message
+        };
+
+        console.log(socketPayload);
+
+        Utilities.websocket.send(JSON.stringify(socketPayload)); 
     }
 
 

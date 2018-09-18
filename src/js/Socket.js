@@ -27,9 +27,27 @@ export const Socket = function(socket_server){
 
 Socket.prototype.onMessage = function(ev){
 
+  var response    = JSON.parse(ev.data); //Server sends Json string
+
+  if(response.key=="chat"){
+
+
+    var chatMsg = document.createElement("p");
+    chatMsg.innerHTML = response.value
+    chatMsg.style.color = "red";
+
+
+    var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
+    chatHolder.appendChild(chatMsg);
+    chatHolder.scrollTop = chatHolder.scrollHeight;
+    return ;
+  }
+
+
   if(!Utilities.video){ return;} //Video has not been initialized yet
 
-  var response    = JSON.parse(ev.data); //Server sends Json string
+  console.log("b");
+
 
 
   //Do not notify others about this player event since it was triggered by someone else
@@ -40,6 +58,7 @@ Socket.prototype.onMessage = function(ev){
     console.log(response);
   }
 
+  console.log(response);
 
   if(response.key=="seek_value"){
 
@@ -56,7 +75,8 @@ Socket.prototype.onMessage = function(ev){
 
     //Play the video as requested by the peer
     Utilities.player.play();
-  }else{
+  }
+  else{
 
     //Remove the notification lock
     Utilities.video.notifyPeers = true; 
