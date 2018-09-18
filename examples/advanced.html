@@ -34,10 +34,6 @@
         <div class="main">
             <div id="video_container">                               
             </div>
-
-            <div class="clearfix"></div>
-            <input type="file" name="video-selector"  id="video-selector">
-            <input type="button" id="start" onclick="mGWatch.webRTC.startVideoCall(true)" value="Start Video"></input>
         </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -49,6 +45,7 @@
           socket_server : 'wss://s1.site4m.com/wss2/',
           devmode: true,
           videoCall: true,
+          localSource: true
         }
 
         var mGWatch = new GWatch(config);

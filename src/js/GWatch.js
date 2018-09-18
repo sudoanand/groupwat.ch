@@ -21,14 +21,17 @@ class GWatch{
 
         //options and config
         this.config = {
+            //configurable via the api
             container : options.container || false,
             src : options.src || false,
             videoCall : options.videoCall || false,
             devmode : options.devmode || false,
-            videoSelector : options.videoSelector ? $("#"+options.videoSelector) : $("#video-selector"),
             socket_server : options.socket_server || false,
+            localSource : options.localSource || false,
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ Utilities.notifyError("socket connection failed"); },
+
+            //hardcoded configurations
             mainPlayerId : "GWatch_mainPlayer",
             mainPlayerSrcId : "GWatch_mainPlayerSrc",
             containerClass : "GWatch_container",
@@ -56,9 +59,6 @@ class GWatch{
         //Creates the required dom elements
         this.initializeUIElements();
 
-        //Attach jQuery UI events to the dom elements
-        this.initializeUIEvents();        
-
 
 
 
@@ -74,19 +74,17 @@ class GWatch{
 
         //Initialize videocallui
         if(this.config.videoCall){
+
             //Place holder for remote vidoe stream holders
             this.videoCallPanelRemoteStream = [];
 
+            //Insert required elements in the dom
             this.initializeVideoCallUI();
-        }else{
-            document.getElementById("GWatch_playerContainer").style.width = "100%";
-        }
 
-
-
-        if(this.config.videoCall){            
             //Initialzie the webrtc class and expose it as a public property of this class        
             this.webRTC = new WebRTC();
+        }else{
+            document.getElementById("GWatch_playerContainer").style.width = "100%";
         }
 
 
@@ -96,6 +94,11 @@ class GWatch{
         //Initialize the player if src is provided
         if(this.config.src){
             this.changePlayerSource(this.config.src);
+        }
+
+        //If local file selector is requested
+        if(this.config.localSource){
+            this.initializeLocalFileSelector();
         }
     }
 
@@ -148,28 +151,54 @@ class GWatch{
         this.videoCallPanelResizer = document.createElement("div");
         this.videoCallPanelResizer.setAttribute("id","GWatch_panResizer");
 
+        //Create video broadcast button
+        this.videoCallPanelStartBtn = document.createElement("button");
+        this.videoCallPanelStartBtn.onclick = function(){ this.webRTC.startVideoCall(true) }.bind(this);
+        this.videoCallPanelStartBtn.innerHTML = "Start Video";
+
+
         //Create video tag for localstream
         this.videoCallPanelLocalStream = this.createVideoStreamHolder({
             id : "localVideo",
-            autoplay : true,
-            muted : true,
-
+            autoplay : "",
         });
+        this.videoCallPanelLocalStream.muted = "muted";
 
         //Create video tag for first remote stream
         this.videoCallPanelRemoteStream[0] = this.createVideoStreamHolder({
             id : "remoteVideo",
-            autoplay : true
+            autoplay : ""
         });
 
+        //Chat box
+        this.chatBox = document.createElement("div");
+        this.chatBoxInput = document.createElement("input");
+        this.chatBoxInput.setAttribute("type","text");
+        this.chatBox.appendChild(this.chatBoxInput);
+
+        this.chatBoxPaper = document.createElement("p");
+        this.chatBoxPaper.setAttribute("id","GWatch_chatBoxPaper")
 
         //Add all of the above to panel container
+        this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
         this.videoCallPanel.appendChild(this.videoCallPanelResizer);
         this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
         this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
+        //this.videoCallPanel.appendChild(this.chatBox);
 
         //Add the video panel to dom
         this.containerEle.appendChild(this.videoCallPanel);
+    }
+
+    initializeLocalFileSelector(){
+
+        this.localFileSelector = document.createElement("input");
+        this.localFileSelector.setAttribute("type","file");
+        this.localFileSelector.setAttribute("class","GWatch_localFileSeletor");
+
+        this.localFileSelector.onchange = function(e){ this.onSrcSelected(e); }.bind(this);
+
+        this.containerEle.appendChild(this.localFileSelector);
     }
 
 
@@ -228,17 +257,6 @@ class GWatch{
         }.bind(this));
     }
 
-
-    /**
-     * Initializes jQuery events to the DOM elements
-     */
-    initializeUIEvents(){
-
-        Utilities.log("Initializing UI events");
-
-        //on video src change
-        this.config.videoSelector.change(this.onSrcSelected.bind(this));
-    }
 
     /**
      * Event handler for the change in video selector input file 

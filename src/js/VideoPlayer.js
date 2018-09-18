@@ -33,10 +33,10 @@ export class VideoPlayer{
 
 		//Initialize the videojs player
 		this.player = videojs(Utilities.config.mainPlayerId, options, this.onPlayerReady.bind(this));
-		this.video_con = document.getElementById(Utilities.config.container);
+		this.containerEle = document.getElementById(Utilities.config.container);
 
 		//Addig the modaldialog class prevents fullscreen on double click
-		this.video_con.getElementsByClassName("vjs-tech")[0].classList.add("vjs-modal-dialog");    
+		this.containerEle.getElementsByClassName("vjs-tech")[0].classList.add("vjs-modal-dialog");    
 
 
 		//Adds all the custom control buttons
@@ -119,16 +119,25 @@ export class VideoPlayer{
 
 
 		//Enter fullscreen
-		if (this.video_con.requestFullscreen) {
-			this.video_con.requestFullscreen();
+		if (this.containerEle.requestFullscreen) {
+			this.containerEle.requestFullscreen();
 			this.switchedOnFullscreen();        
-		} else if (this.video_con.mozRequestFullScreen) {
-			this.video_con.mozRequestFullScreen();
+		} else if (this.containerEle.mozRequestFullScreen) {
+			this.containerEle.mozRequestFullScreen();
 			this.switchedOnFullscreen();        
-		} else if (this.video_con.webkitRequestFullscreen) {
-			this.video_con.webkitRequestFullscreen();
+		} else if (this.containerEle.webkitRequestFullscreen) {
+			this.containerEle.webkitRequestFullscreen();
 			this.switchedOnFullscreen();
 		}
+	}
+
+
+	hideLocalFileSelector(){
+			this.containerEle.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "none";		
+	}
+
+	showLocalFileSelector(){
+			this.containerEle.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "block";		
 	}
 
 
@@ -137,10 +146,16 @@ export class VideoPlayer{
 	*/
 	switchedOffFullscreen(){
 		this.fullscreenmode =false;	
-		this.video_con.classList.remove("fullscreen_vidjs");  	
-			
+		this.containerEle.classList.remove("fullscreen_vidjs");  	
+	
+		if(Utilities.config.localSource){
+			this.showLocalFileSelector();
+		}
+
+
+
 		if(Utilities.config.videoCall){
-		
+
 			//Resize to default sizes on screen changes
 			document.getElementById("GWatch_playerContainer").style.width = "80%";
 			document.getElementById("GWatch_camContainer").style.width = "20%";
@@ -152,11 +167,15 @@ export class VideoPlayer{
 	*/
 	switchedOnFullscreen(){
 		this.fullscreenmode = true;          
-		this.video_con.classList.add("fullscreen_vidjs");
+		this.containerEle.classList.add("fullscreen_vidjs");
+
+		if(Utilities.config.localSource){
+			this.hideLocalFileSelector();
+		}
 
 
 		if(Utilities.config.videoCall){
-		
+
 			//Resize to default sizes on screen changes		
 			document.getElementById("GWatch_playerContainer").style.width = "80%";
 			document.getElementById("GWatch_camContainer").style.width = "20%";
@@ -181,9 +200,9 @@ export class VideoPlayer{
 
 		newLink.innerHTML = "<i title='"+data.title+"' class='icon " + data.icon + " line-height' aria-hidden='true'></i>";
 		newElement.appendChild(newLink);
-		controlBar = this.video_con.getElementsByClassName('vjs-control-bar')[0];
+		controlBar = this.containerEle.getElementsByClassName('vjs-control-bar')[0];
 
-		insertBeforeNode = this.video_con.getElementsByClassName('vjs-fullscreen-control')[0];
+		insertBeforeNode = this.containerEle.getElementsByClassName('vjs-fullscreen-control')[0];
 		controlBar.insertBefore(newElement, insertBeforeNode);
 
 
