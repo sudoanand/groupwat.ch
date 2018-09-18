@@ -1,23 +1,49 @@
 <html>
     <head>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <link href="https://vjs.zencdn.net/7.1.0/video-js.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
     <link rel="stylesheet" href="../build/styles.css">
     </head>
 
+    <style type="text/css">
+        body{
+            background: #eee;
+            text-align: center;
+            margin: -60px 30px 0px;
+            }
+
+        .main{
+            background: #fff;
+            display: inline-block;
+            position: relative;
+            top: 200px;
+            border-radius: 6px;
+            box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+            padding-bottom: 20px;
+        }
+
+        #video_container{
+            margin: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
     <body>
 
-        <div id="video_container">                
-            <div id="GWatch_camContainer">
-                <video class="mirrored_video" id="localVideo" autoplay muted style="width:8%;"></video>
-                <video class="mirrored_video" id="remoteVideo" autoplay style="width:13%;"></video>        
+
+        <div class="main">
+            <div id="video_container">                
+                <div id="GWatch_camContainer">
+                    <div id="drag"></div>
+                    <video class="mirrored_video" id="localVideo" autoplay muted style="width:100%;"></video>
+                    <video class="mirrored_video" id="remoteVideo" autoplay style="width:100%;"></video>        
+                </div>
             </div>
 
+            <div class="clearfix"></div>
             <input type="file" name="video-selector"  id="video-selector">
+            <input type="button" id="start" onclick="mGWatch.webRTC.startVideoCall(true)" value="Start Video"></input>
         </div>
-
-        <input type="button" id="start" onclick="mGWatch.webRTC.startVideoCall(true)" value="Start Video"></input>
-
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://unpkg.com/video.js/dist/video.js"></script>
@@ -25,7 +51,7 @@
         <script type="text/javascript">
         var config = {
           container : 'video_container',
-          socket_server : 'wss://localhost/wss2/',
+          socket_server : 'wss://s1.site4m.com/wss2/',
           devmode: true,
           videoCall: true
         }

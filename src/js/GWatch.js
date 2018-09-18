@@ -73,27 +73,37 @@ class GWatch{
             //Initialzie the webrtc class and expose it as a public property of this class        
             this.webRTC = new WebRTC();
         }
+
+        //Enable panel resizer 
+        this.enablePanelResizer();
+
     }
 
-
+    /**
+     * Creates required dom elements and appends in it
+     * @return {[type]} [description]
+     */
     initializeUIElements(){
         //Add the container class
         this.containerEle.classList.add(this.config.containerClass);
 
         //Setup the main video player
+        //Create a conatainer
+        this.mainVideoPlayerContainer = document.createElement("div");
+        this.mainVideoPlayerContainer.setAttribute("id","GWatch_playerContainer");
+        
         //Create video tag
         this.mainVideoPlayer = document.createElement("video");
         this.mainVideoPlayer.setAttribute("controls",true);
         this.mainVideoPlayer.setAttribute("id",this.config.mainPlayerId);
         this.mainVideoPlayer.setAttribute("class","video-js");
-        this.mainVideoPlayer.setAttribute("fullscreen","false");
         this.mainVideoPlayer.setAttribute("preload","auto");
 //        this.mainVideoPlayer.setAttribute("width","640");
 //        this.mainVideoPlayer.setAttribute("height","264");
 
         //Create source tag
         this.mainVideoPlayerSrc = document.createElement("source");
-        this.mainVideoPlayerSrc.setAttribute("id",this.config.mainVideoPlayerSrcId);
+        this.mainVideoPlayerSrc.setAttribute("class",this.config.mainVideoPlayerSrcId);
         this.mainVideoPlayerSrc.setAttribute("src","");
         this.mainVideoPlayerSrc.setAttribute("type","video/mp4");
 
@@ -105,8 +115,52 @@ class GWatch{
         //Add the video tag in the container
         this.mainVideoPlayer.appendChild(this.mainVideoPlayerSrc); // Add the source tag inside the video tag
         this.mainVideoPlayer.appendChild(this.mainVideoPlayerP); // Add the p tag inside the video tag
-        this.containerEle.appendChild(this.mainVideoPlayer); //Add the video tag inside the container
+        this.mainVideoPlayerContainer.appendChild(this.mainVideoPlayer); //Add the video player in its container
+
+        this.containerEle.appendChild(this.mainVideoPlayerContainer); //Add the video tag inside the container
         
+    }
+
+
+    /**
+     * Enable player resizer
+     */
+    enablePanelResizer(){
+
+        this.isResizing = false,    
+        this.lastDownX = 0;
+
+        console.log("a");
+
+        var container = $('#'+Utilities.config.container),
+            left = $('#GWatch_playerContainer','#'+Utilities.config.container),
+            right = $('#GWatch_camContainer','#'+Utilities.config.container),
+            handle = $('#drag','#'+Utilities.config.container);
+
+        handle.on('mousedown', function (e) {
+            this.isResizing = true;
+            this.lastDownX = e.clientX;
+        }.bind(this));
+
+        $(document).on('mousemove', function (e) {
+
+            // we don't want to do anything if we aren't resizing.
+            if (!this.isResizing) 
+                return;
+            
+            var offsetRight = e.clientX;
+            var offseLeft = container.width()-offsetRight;
+
+            if(offsetRight > container.width()){
+                return ;
+            }
+
+            left.css('width', offsetRight);
+            right.css('width', offseLeft);
+        }.bind(this)).on('mouseup', function (e) {
+            // stop resizing
+            this.isResizing = false;
+        }.bind(this));
     }
 
 
@@ -145,7 +199,7 @@ class GWatch{
         Utilities.log("Changing player's source");
 
         //Change src element
-        document.getElementById(this.config.mainVideoPlayerSrcId).setAttribute("src",newSrc);
+        this.containerEle.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src",newSrc);
 
         if(typeof Utilities.player=="undefined"){
 
