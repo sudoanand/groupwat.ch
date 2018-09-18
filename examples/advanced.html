@@ -32,12 +32,7 @@
 
 
         <div class="main">
-            <div id="video_container">                
-                <div id="GWatch_camContainer">
-                    <div id="drag"></div>
-                    <video class="mirrored_video" id="localVideo" autoplay muted style="width:100%;"></video>
-                    <video class="mirrored_video" id="remoteVideo" autoplay style="width:100%;"></video>        
-                </div>
+            <div id="video_container">                               
             </div>
 
             <div class="clearfix"></div>
@@ -53,7 +48,7 @@
           container : 'video_container',
           socket_server : 'wss://s1.site4m.com/wss2/',
           devmode: true,
-          videoCall: true
+          videoCall: true,
         }
 
         var mGWatch = new GWatch(config);

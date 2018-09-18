@@ -26,6 +26,6 @@ export  class Utilities{
      * @return {[type]} [description]
      */
     static notifyError(message){
-    	alert(message);
+    	console.error(message+", See https://groupwat.ch/");
     }
 }

@@ -22,21 +22,24 @@ class GWatch{
         //options and config
         this.config = {
             container : options.container || false,
+            src : options.src || false,
             videoCall : options.videoCall || false,
             devmode : options.devmode || false,
-
             videoSelector : options.videoSelector ? $("#"+options.videoSelector) : $("#video-selector"),
-            socket_server : options.socket_server || 'ws://'+window.location.hostname+':12345',
+            socket_server : options.socket_server || false,
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
-            onSocketError : options.onSocketError || function(){ console.error("socket connection failed");},
-
+            onSocketError : options.onSocketError || function(){ Utilities.notifyError("socket connection failed"); },
             mainPlayerId : "GWatch_mainPlayer",
             mainPlayerSrcId : "GWatch_mainPlayerSrc",
             containerClass : "GWatch_container",
         };
 
         if(!this.config.container){
-            console.error("Please specify the container option to the GWatch initialization.");
+            Utilities.notifyError("GWatch: Please specify the container option.");
+            return;
+        }
+        else if(!this.config.socket_server){
+            Utilities.notifyError("GWatch: Please specify the socket_server option.");
             return;
         }
 
@@ -69,14 +72,31 @@ class GWatch{
         Utilities.websocket             = Utilities.mSocket.websocket;             //A global variable containing websocket connection object    
 
 
+        //Initialize videocallui
+        if(this.config.videoCall){
+            //Place holder for remote vidoe stream holders
+            this.videoCallPanelRemoteStream = [];
+
+            this.initializeVideoCallUI();
+        }else{
+            document.getElementById("GWatch_playerContainer").style.width = "100%";
+        }
+
+
+
         if(this.config.videoCall){            
             //Initialzie the webrtc class and expose it as a public property of this class        
             this.webRTC = new WebRTC();
         }
 
+
         //Enable panel resizer 
         this.enablePanelResizer();
 
+        //Initialize the player if src is provided
+        if(this.config.src){
+            this.changePlayerSource(this.config.src);
+        }
     }
 
     /**
@@ -98,8 +118,6 @@ class GWatch{
         this.mainVideoPlayer.setAttribute("id",this.config.mainPlayerId);
         this.mainVideoPlayer.setAttribute("class","video-js");
         this.mainVideoPlayer.setAttribute("preload","auto");
-//        this.mainVideoPlayer.setAttribute("width","640");
-//        this.mainVideoPlayer.setAttribute("height","264");
 
         //Create source tag
         this.mainVideoPlayerSrc = document.createElement("source");
@@ -118,7 +136,55 @@ class GWatch{
         this.mainVideoPlayerContainer.appendChild(this.mainVideoPlayer); //Add the video player in its container
 
         this.containerEle.appendChild(this.mainVideoPlayerContainer); //Add the video tag inside the container
-        
+    }
+
+    initializeVideoCallUI(){
+
+        //Create panel container
+        this.videoCallPanel = document.createElement("div");
+        this.videoCallPanel.setAttribute("id","GWatch_camContainer");
+
+        //Create panel resizer
+        this.videoCallPanelResizer = document.createElement("div");
+        this.videoCallPanelResizer.setAttribute("id","GWatch_panResizer");
+
+        //Create video tag for localstream
+        this.videoCallPanelLocalStream = this.createVideoStreamHolder({
+            id : "localVideo",
+            autoplay : true,
+            muted : true,
+
+        });
+
+        //Create video tag for first remote stream
+        this.videoCallPanelRemoteStream[0] = this.createVideoStreamHolder({
+            id : "remoteVideo",
+            autoplay : true
+        });
+
+
+        //Add all of the above to panel container
+        this.videoCallPanel.appendChild(this.videoCallPanelResizer);
+        this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
+        this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
+
+        //Add the video panel to dom
+        this.containerEle.appendChild(this.videoCallPanel);
+    }
+
+
+    createVideoStreamHolder(attrs){
+
+        var videoHolder = document.createElement("video");
+
+        videoHolder.classList.add("mirrored_video");
+
+        for(var key in attrs){
+            videoHolder.setAttribute(key,attrs[key]);
+        }
+
+
+        return videoHolder;
     }
 
 
@@ -134,7 +200,7 @@ class GWatch{
         var container = $('#'+Utilities.config.container),
             left = $('#GWatch_playerContainer','#'+Utilities.config.container),
             right = $('#GWatch_camContainer','#'+Utilities.config.container),
-            handle = $('#drag','#'+Utilities.config.container);
+            handle = $('#GWatch_panResizer','#'+Utilities.config.container);
 
         handle.on('mousedown', function (e) {
             this.isResizing = true;

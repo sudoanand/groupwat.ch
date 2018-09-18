@@ -32,7 +32,6 @@ export class VideoPlayer{
 		this.notifyPeers = true;
 
 		//Initialize the videojs player
-		console.log(Utilities.config.mainPlayerId);
 		this.player = videojs(Utilities.config.mainPlayerId, options, this.onPlayerReady.bind(this));
 		this.video_con = document.getElementById(Utilities.config.container);
 
@@ -43,10 +42,14 @@ export class VideoPlayer{
 		//Adds all the custom control buttons
 		this.addAllControlBtns();
 
-		//Fullscreen change event
-		["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(
-		    eventType => document.addEventListener(eventType, this.fullScreenChanged.bind(this), false)
-		);
+		//Fullscreen change event		
+		//If videocalls are going on
+		if(Utilities.config.videoCall){
+
+			["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(
+			    eventType => document.addEventListener(eventType, this.fullScreenChanged.bind(this), false)
+			);
+		}
 	}
 
 
@@ -114,7 +117,6 @@ export class VideoPlayer{
 
 	enterFullScreenMode(){
 
-		console.log("Entering fullScreen , c",this.video_con);
 
 		//Enter fullscreen
 		if (this.video_con.requestFullscreen) {
@@ -136,10 +138,13 @@ export class VideoPlayer{
 	switchedOffFullscreen(){
 		this.fullscreenmode =false;	
 		this.video_con.classList.remove("fullscreen_vidjs");  	
-
-		//Resize to default sizes on screen changes
-		document.getElementById("GWatch_playerContainer").style.width = "80%";
-		document.getElementById("GWatch_camContainer").style.width = "20%";
+			
+		if(Utilities.config.videoCall){
+		
+			//Resize to default sizes on screen changes
+			document.getElementById("GWatch_playerContainer").style.width = "80%";
+			document.getElementById("GWatch_camContainer").style.width = "20%";
+		}
 	}
 
 	/**
@@ -150,9 +155,12 @@ export class VideoPlayer{
 		this.video_con.classList.add("fullscreen_vidjs");
 
 
-		//Resize to default sizes on screen changes		
-		document.getElementById("GWatch_playerContainer").style.width = "80%";
-		document.getElementById("GWatch_camContainer").style.width = "20%";
+		if(Utilities.config.videoCall){
+		
+			//Resize to default sizes on screen changes		
+			document.getElementById("GWatch_playerContainer").style.width = "80%";
+			document.getElementById("GWatch_camContainer").style.width = "20%";
+		}
 	}
 
 	/**
@@ -346,16 +354,6 @@ export class VideoPlayer{
 	  this.notifyPeers = true; 
 	}.bind(this));
 
-	// this.player.on('dblclick', function() { this.toggleFullScreen(); }.bind(this));
-
-	this.player.on("fullscreenchange", function(){
-
-		if(this.player.isFullscreen()){
-
-			//Exit the video fullscreen and make the container fullscreen
-			this.exitFullscreenMode();
-		}
-	}.bind(this));
 
 	//Video seeke happened event handler
 	this.player.on("seeked", function (e) {
