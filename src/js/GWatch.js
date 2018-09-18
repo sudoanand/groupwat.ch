@@ -130,7 +130,6 @@ class GWatch{
         this.isResizing = false,    
         this.lastDownX = 0;
 
-        console.log("a");
 
         var container = $('#'+Utilities.config.container),
             left = $('#GWatch_playerContainer','#'+Utilities.config.container),

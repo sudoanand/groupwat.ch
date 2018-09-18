@@ -7,8 +7,7 @@ import {Utilities} from './Utilities'
 export class WebRTC{
 
 	constructor(){
-		console.log("good so far");
-
+	
 		this.peerConnectionConfig = {
 		  'iceServers': [
 		    {'urls': 'stun:stun.stunprotocol.org:3478'},
