@@ -46,7 +46,7 @@ Initialize the plugin
     </script>
 
 ## Installation
-Follow these steps to run groupwat.ch on your server (or localhost), it needs `php-cli` installed.
+Follow these steps to run groupwat.ch on your server
 
 - Step 1 : Clone the repo or [Download Zip](https://github.com/hack4mer/groupwat.ch/archive/master.zip) archive
 - Setup 2: Setup the socket server
