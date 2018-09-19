@@ -1,7 +1,7 @@
 # GroupWat.ch
 Make your own video room to watch videos remotely with all your friends
 ### Demo
-Here's is a demo : <https://groupwat.ch/examples/advanced.hmtl>
+Here's is a demo : <https://groupwat.ch/examples/advanced.html>
 
 Please note that many people might be using the demo page (the demo socket server) in real-time. Therefore when they pause, play or seek a video, the same reflects on your end too.
 
