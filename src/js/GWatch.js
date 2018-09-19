@@ -45,6 +45,9 @@ class GWatch{
         else if(!this.config.socket_server){
             Utilities.notifyError("GWatch: Please specify the socket_server option.");
             return;
+        }else if(!this.config.localSource && !this.config.src){
+            Utilities.notifyError("GWatch: Please provide src or set localSource to true.");
+            return;
         }
 
         this.containerEle  = document.getElementById(options.container);
