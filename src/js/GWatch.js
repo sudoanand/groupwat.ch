@@ -51,6 +51,7 @@ class GWatch{
         }
 
         this.containerEle  = document.getElementById(options.container);
+        this.containerEle.style.display = "flex";
 
 
         //A placeholder for an instance of the VideoPlayer
@@ -62,9 +63,13 @@ class GWatch{
 
         //Creates the required dom elements
         this.initializeUIElements();
+        this.uuid = Utilities.createUUID();
 
+        //Generate UUID
+        Utilities.uuid = this.uuid;
 
-
+        //Setup UUID
+        this.setUpRoomId();
 
         //Set utility options
         Utilities.config               = this.config;                     // If the logs should appera in the console
@@ -105,6 +110,23 @@ class GWatch{
             this.initializeLocalFileSelector();
         }
     }
+
+    /**
+     * Appends UUID in the URL and creates shareable url
+     * Decides room id
+     */
+    setUpRoomId(){
+        if(window.location.hash.length > 0){
+            this.roomId = window.location.hash.substr(1);
+        }else{
+            this.roomId = this.uuid;
+        }
+
+        Utilities.roomId = this.roomId;
+        Utilities.setCookie("roomId",this.roomId,1);
+        window.location.hash = this.roomId;
+    }
+
 
     /**
      * Creates required dom elements and appends in it
@@ -175,9 +197,16 @@ class GWatch{
         });
 
         //Chat box
+        this.chatContainer = document.createElement("div");
+        this.chatContainer.setAttribute("class","GWatch_chat_container");
+
         this.chatBox = document.createElement("div");
+        this.chatBox.setAttribute("class","GWatch_chat_subcontainer");
+
         this.chatBoxInput = document.createElement("input");
+        this.chatBoxInput.setAttribute("class","GWatch_chatInput");
         this.chatBoxInput.setAttribute("type","text");
+        this.chatBoxInput.setAttribute("placeholder","Type a message...");
         this.chatBoxInput.addEventListener("keyup", function(event) {
             if (event.key === "Enter") {
                this.sendChat(this.chatBoxInput.value);
@@ -189,15 +218,16 @@ class GWatch{
         this.chatBoxPaper.setAttribute("class",this.config.chatBoxPaperClass);
 
         //Chat box 
-        this.chatBox.appendChild(this.chatBoxInput);
         this.chatBox.appendChild(this.chatBoxPaper);
+        this.chatBox.appendChild(this.chatBoxInput);
+        this.chatContainer.appendChild(this.chatBox);
 
         //Add all of the above to panel container
         this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
         this.videoCallPanel.appendChild(this.videoCallPanelResizer);
         this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
         this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
-        this.videoCallPanel.appendChild(this.chatBox);
+        this.videoCallPanel.appendChild(this.chatContainer);
 
         //Add the video panel to dom
         this.containerEle.appendChild(this.videoCallPanel);
@@ -211,7 +241,7 @@ class GWatch{
 
         this.localFileSelector.onchange = function(e){ this.onSrcSelected(e); }.bind(this);
 
-        this.containerEle.appendChild(this.localFileSelector);
+        this.containerEle.parentElement.appendChild(this.localFileSelector);
     }
 
 
@@ -235,6 +265,8 @@ class GWatch{
         var chatMsg = document.createElement("p");
         chatMsg.innerHTML = message
         chatMsg.style.color = "blue";
+        chatMsg.style['text-align'] = "right";
+
 
         var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
         chatHolder.appendChild(chatMsg);
@@ -244,6 +276,7 @@ class GWatch{
 
         //Send chat
         var socketPayload = {
+            roomId : Utilities.roomId,
             name: Utilities.session_identifier,
             key: "chat",
             value : message

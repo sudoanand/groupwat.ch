@@ -133,11 +133,11 @@ export class VideoPlayer{
 
 
 	hideLocalFileSelector(){
-			this.containerEle.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "none";		
+			document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "none";		
 	}
 
 	showLocalFileSelector(){
-			this.containerEle.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "block";		
+			document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "block";		
 	}
 
 
@@ -325,6 +325,7 @@ export class VideoPlayer{
 	this.player.on('pause', function(e) {
 
 	  var socketPayload = {
+	  	roomId : Utilities.roomId,
 		name: Utilities.session_identifier,
 		key: "pause",
 		value : true
@@ -352,6 +353,7 @@ export class VideoPlayer{
 	  if(this.videoSeeking){return;}
 
 	  var socketPayload = {
+	  	roomId : Utilities.roomId,
 		name: Utilities.session_identifier,
 		key: "play",
 		value : true
@@ -385,6 +387,7 @@ export class VideoPlayer{
 	  Utilities.log("Video seeked");
 
 	  var socketPayload = {
+	  	roomId : Utilities.roomId,	  	
 		name: Utilities.session_identifier,
 		key: "seek_value",
 		value : {time : seekedTo, play: !this.player.paused()}

@@ -15,7 +15,7 @@ export class WebRTC{
 		  ]
 		};
 
-		this.uuid = this.createUUID();
+		this.uuid = Utilities.uuid;
 
 		this.localVideo = document.getElementById('localVideo');
 		this.remoteVideo = document.getElementById('remoteVideo');
@@ -78,7 +78,7 @@ export class WebRTC{
 
 	gotIceCandidate(event) {
 	  if(event.candidate != null) {
-	    this.serverConnection.send(JSON.stringify({'ice': event.candidate, 'uuid': this.uuid}));
+	    this.serverConnection.send(JSON.stringify({'roomId': Utilities.roomId,'ice': event.candidate, 'uuid': this.uuid}));
 	  }
 	}
 
@@ -86,7 +86,7 @@ export class WebRTC{
 	  console.log('got description');
 
 	  this.peerConnection.setLocalDescription(description).then(function() {
-	    this.serverConnection.send(JSON.stringify({'sdp': this.peerConnection.localDescription, 'uuid': this.uuid}));
+	    this.serverConnection.send(JSON.stringify({'roomId': Utilities.roomId,'sdp': this.peerConnection.localDescription, 'uuid': this.uuid}));
 	  }.bind(this)).catch(this.errorHandler);
 	}
 
@@ -98,17 +98,6 @@ export class WebRTC{
 	errorHandler(error) {
 	  console.error(error);
 	}
-
-	// Taken from http://stackoverflow.com/a/105074/515584
-	// Strictly speaking, it's not a real UUID, but it gets the job done here
-	createUUID() {
-	  function s4() {
-	    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-	  }
-
-	  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-	}
-
 
 	/**
 	 * Pause the audio and video streaming

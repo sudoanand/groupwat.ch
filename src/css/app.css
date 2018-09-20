@@ -14,9 +14,36 @@
 .fullscreen_vidjs #GWatch_playerContainer{
 	height: 100%;
 }
+.GWatch_chat_container{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    right: 0px;
+    display: block;
+    height: 30%;
+}
+.GWatch_chat_subcontainer{
+    height: 100%;
+}
 .GWatch_chatBoxPaper{
-	max-height: 250px;
-	overflow: scroll;
+    padding: 10px;
+    overflow: scroll;
+    max-height: 100%;
+    background: #fff;    
+    bottom: 33px !important;
+}
+
+.GWatch_chat_container div,.GWatch_chatInput{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+}
+.GWatch_chat_container input{
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 10px;
 }
 
 .mirrored_video

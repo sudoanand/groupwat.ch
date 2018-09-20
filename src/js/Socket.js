@@ -31,10 +31,12 @@ Socket.prototype.onMessage = function(ev){
 
   if(response.key=="chat"){
 
+    console.log(response);
 
     var chatMsg = document.createElement("p");
     chatMsg.innerHTML = response.value
     chatMsg.style.color = "red";
+    chatMsg.style['text-align'] = "left";
 
 
     var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
@@ -45,8 +47,6 @@ Socket.prototype.onMessage = function(ev){
 
 
   if(!Utilities.video){ return;} //Video has not been initialized yet
-
-  console.log("b");
 
 
 
