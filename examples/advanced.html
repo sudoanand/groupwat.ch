@@ -76,6 +76,7 @@
             return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]"+escape(e).replace(/[\.\+\*]/g,"\\$&")+"(?:\\=([^&]*))?)?.*$","i"),"$1"))
         }
 
+        //Config for the groupwat.ch player
         var config = {
           container : 'video_container',
           socket_server : 'wss://s1.site4m.com/wss2/',
@@ -86,6 +87,7 @@
           disableVideo : parseInt(getQueryStringValue("video")) === 0 ? true : false
         }
 
+        //Initiazlize groupwat.ch
         var mGWatch = new GWatch(config);
       </script>
     </body>
