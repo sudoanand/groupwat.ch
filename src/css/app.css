@@ -28,9 +28,10 @@
 .GWatch_chatBoxPaper{
     padding: 10px;
     overflow: scroll;
-    max-height: 100%;
+    height: 100%;
     background: #fff;    
-    bottom: 33px !important;
+    padding-bottom: 33px;
+    box-sizing: border-box;
 }
 
 .GWatch_chat_container div,.GWatch_chatInput{
@@ -53,6 +54,10 @@
     -moz-transform:rotateY(180deg); /* Firefox */
     width: 100%;
 }
+.disableResizer #GWatch_panResizer {
+    display: none;
+}
+
 #GWatch_panResizer {
 	position: absolute;
     left: -9px;
@@ -71,12 +76,13 @@
 
 #GWatch_playerContainer {
     position: relative;
-    width: 80%;
+    width: 100%;
+    z-index: 99;
     display: inline-block;
 }
 
 #GWatch_camContainer {
-    position: absolute;
+    position: fixed;
     bottom: 0px;
     right: 0px;
     height: 100%;
@@ -106,7 +112,7 @@ li.nav-item {
 
 .video-js{
 	width: 100%;
-	height: 264px;
+	height: 360px;
 }
 
 .socket_log{

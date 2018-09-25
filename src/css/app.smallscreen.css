@@ -1,0 +1,10 @@
+@media only screen and (max-device-width: 480px) {
+
+	.video-js{
+		height: 260px;
+	}
+
+	.GWatch_container{
+		margin:0px !important;
+	}
+}

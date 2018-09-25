@@ -54,7 +54,7 @@ export class VideoPlayer{
 
 
 	/**
-	 * Adds all custom btns as defined
+	 * Adds all custom btns 
 	 */
 	addAllControlBtns(){
 
@@ -157,8 +157,10 @@ export class VideoPlayer{
 		if(Utilities.config.videoCall){
 
 			//Resize to default sizes on screen changes
-			document.getElementById("GWatch_playerContainer").style.width = "80%";
-			document.getElementById("GWatch_camContainer").style.width = "20%";
+			document.getElementById("GWatch_playerContainer").style.width = "100%";
+			var camContainer = document.getElementById("GWatch_camContainer");
+			camContainer.style.width = "20%";
+			camContainer.classList.add("disableResizer");
 		}
 	}
 
@@ -178,7 +180,9 @@ export class VideoPlayer{
 
 			//Resize to default sizes on screen changes		
 			document.getElementById("GWatch_playerContainer").style.width = "80%";
-			document.getElementById("GWatch_camContainer").style.width = "20%";
+			var camContainer = document.getElementById("GWatch_camContainer");
+			camContainer.style.width = "20%";
+			camContainer.classList.remove("disableResizer");
 		}
 	}
 

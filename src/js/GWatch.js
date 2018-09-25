@@ -9,6 +9,7 @@ import {Socket} from './Socket'
 import {Utilities} from './Utilities'
 import {WebRTC} from './WebRTC'
 import styles from '../css/app.css'
+import smallscreen_styles from '../css/app.smallscreen.css'
 
 /**
  * GWatch constructor
@@ -28,6 +29,7 @@ class GWatch{
             devmode : options.devmode || false,
             socket_server : options.socket_server || false,
             localSource : options.localSource || false,
+            disableChat : options.disableChat || false,
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ Utilities.notifyError("socket connection failed"); },
 
@@ -56,9 +58,6 @@ class GWatch{
 
         //A placeholder for an instance of the VideoPlayer
         this.video = null;
-
-        //show the video player
-        this.showVideoContainer();
 
 
         //Creates the required dom elements
@@ -172,6 +171,7 @@ class GWatch{
         //Create panel container
         this.videoCallPanel = document.createElement("div");
         this.videoCallPanel.setAttribute("id","GWatch_camContainer");
+        this.videoCallPanel.classList.add("disableResizer");
 
         //Create panel resizer
         this.videoCallPanelResizer = document.createElement("div");
@@ -195,6 +195,29 @@ class GWatch{
             id : "remoteVideo",
             autoplay : ""
         });
+
+
+
+        //Add all of the above to panel container
+        this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
+        this.videoCallPanel.appendChild(this.videoCallPanelResizer);
+        this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
+        this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
+
+        if(!Utilities.config.disableChat){
+            this.makeChatUI();
+            this.videoCallPanel.appendChild(this.chatContainer);
+        }
+
+        //Add the video panel to dom
+        this.containerEle.appendChild(this.videoCallPanel);
+    }
+
+
+    /**
+     * Makes UI interface for the chat room
+     */
+    makeChatUI(){
 
         //Chat box
         this.chatContainer = document.createElement("div");
@@ -221,16 +244,6 @@ class GWatch{
         this.chatBox.appendChild(this.chatBoxPaper);
         this.chatBox.appendChild(this.chatBoxInput);
         this.chatContainer.appendChild(this.chatBox);
-
-        //Add all of the above to panel container
-        this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
-        this.videoCallPanel.appendChild(this.videoCallPanelResizer);
-        this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
-        this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
-        this.videoCallPanel.appendChild(this.chatContainer);
-
-        //Add the video panel to dom
-        this.containerEle.appendChild(this.videoCallPanel);
     }
 
     initializeLocalFileSelector(){
@@ -370,13 +383,6 @@ class GWatch{
     }
 
 
-    /**
-    * Makes the main video player visible
-    */
-    showVideoContainer(){
-        //Show video container
-        //this.config.videoElement.parent().fadeIn();
-    }
 
     /**
     * Generates a random string to use as an identifier for the socket connection
