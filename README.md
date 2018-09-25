@@ -78,7 +78,9 @@ Following are configuration options available for the `GWatch` API
 | socket_server      			| Complete URL of the socket server 											|	 required |
 | src  			    			| URL of the video file to play 												|	 required or `localSource` should be `true`  |
 | localSource  			    	| Show a local-disk video file selector											|	 Default: false |
-| videoCall  			    	| Enable video chat feature 													|	 Default: false |
+| videoCall                     | Enable video, voice  & chat features                                          |    Default: false |
+| disableVideo                  | When true: Disables video & voice features, allows chat only                  |    Default: false |
+| disableChat  			        | When true: Disables the chat feature, allows video & voice only			    |	 Default: false |
 | devmode      					| Devevelopment mode, informative console logs are disabled is set to false   	|    Default: false |
 | onSocketConnected 			| Function to be fired when socket connection is succesful      				|    `function(){ console.log("socket connected");` |
 | onSocketError 				| Function to be fired when socket connection fails      						|    `function(){ console.error("socket connection failed");}` |
