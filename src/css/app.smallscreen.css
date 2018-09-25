@@ -1,4 +1,5 @@
-@media only screen and (max-device-width: 900px) {
+/*Mobile screen landscape mode*/
+@media only screen and (max-width: 1110px) {
 
 	.video-js{
 		height: 260px;
@@ -6,5 +7,41 @@
 
 	.GWatch_container{
 		margin:0px !important;
+	}
+}
+
+/*Mobile screens portrait mode*/
+@media only screen and (max-width: 480px) {
+	.GWatch_chat_container{
+		position: fixed;
+		height: 25vh;
+	}
+
+	#GWatch_camContainer{
+		width:100% !important;
+		overflow-x: scroll;
+	}
+
+	.GWatch_camContainer_videos{
+		min-width: 1000px;
+	}
+
+	.video-js{
+		height: 30vh;
+	}
+
+
+	.GWatch_camContainer_videos video{
+	    display: inline-block;
+	    height: 17vh;
+	    width: auto;
+	}
+
+	.fullscreen_vidjs #GWatch_camContainer{
+		z-index: 99;
+	}
+
+	.fullscreen_vidjs #GWatch_playerContainer{
+		width: 100% !important;
 	}
 }

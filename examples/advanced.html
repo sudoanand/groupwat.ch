@@ -33,7 +33,7 @@
 
 
         /*Mobile screen landscape mode*/
-        @media only screen and (max-device-width: 900px) {
+        @media only screen and (max-width: 1110px) {
             .main{
                 max-width:80%;                
             }
@@ -42,9 +42,9 @@
                 text-align: left;
             }
         }
-        
+
         /*Mobile screens portrait mode*/
-        @media only screen and (max-device-width: 480px) {
+        @media only screen and (max-width: 480px) {
             .main{
                 max-width:100%;                
             }
@@ -67,12 +67,23 @@
         <script src="https://unpkg.com/video.js/dist/video.js"></script>
         <script src="../build/bundle.js"></script>
         <script type="text/javascript">
+        /**
+         * Returns value of the key provide from querystrings
+         * @param  {string} e key to search for in query strings
+         * @return {string}   value of the key passed, extracted from query strings
+         */
+        function getQueryStringValue(e){
+            return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]"+escape(e).replace(/[\.\+\*]/g,"\\$&")+"(?:\\=([^&]*))?)?.*$","i"),"$1"))
+        }
+
         var config = {
           container : 'video_container',
           socket_server : 'wss://s1.site4m.com/wss2/',
           devmode: true,
           videoCall: true,
-          localSource: true
+          localSource: true,
+          disableChat : parseInt(getQueryStringValue("chat")) === 0 ? true : false,
+          disableVideo : parseInt(getQueryStringValue("video")) === 0 ? true : false
         }
 
         var mGWatch = new GWatch(config);

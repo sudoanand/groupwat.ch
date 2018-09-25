@@ -30,6 +30,7 @@ class GWatch{
             socket_server : options.socket_server || false,
             localSource : options.localSource || false,
             disableChat : options.disableChat || false,
+            disableVideo : options.disableVideo || false,
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ Utilities.notifyError("socket connection failed"); },
 
@@ -89,8 +90,11 @@ class GWatch{
             //Insert required elements in the dom
             this.initializeVideoCallUI();
 
-            //Initialzie the webrtc class and expose it as a public property of this class        
-            this.webRTC = new WebRTC();
+            if(!Utilities.config.disableVideo){            
+                //Initialzie the webrtc class and expose it as a public property of this class        
+                this.webRTC = new WebRTC();
+            }
+
         }else{
             document.getElementById("GWatch_playerContainer").style.width = "100%";
         }
@@ -123,7 +127,7 @@ class GWatch{
 
         Utilities.roomId = this.roomId;
         Utilities.setCookie("roomId",this.roomId,1);
-        window.location.hash = this.roomId;
+        //window.location.hash = this.roomId;
     }
 
 
@@ -183,6 +187,11 @@ class GWatch{
         this.videoCallPanelStartBtn.innerHTML = "Start Video";
 
 
+        //Container for local and remote video tags
+        this.videoCallPanelVideos = document.createElement("div");
+        this.videoCallPanelVideos.classList.add("GWatch_camContainer_videos");
+        
+
         //Create video tag for localstream
         this.videoCallPanelLocalStream = this.createVideoStreamHolder({
             id : "localVideo",
@@ -197,12 +206,23 @@ class GWatch{
         });
 
 
-
         //Add all of the above to panel container
-        this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
-        this.videoCallPanel.appendChild(this.videoCallPanelResizer);
-        this.videoCallPanel.appendChild(this.videoCallPanelLocalStream);
-        this.videoCallPanel.appendChild(this.videoCallPanelRemoteStream[0]);
+        if(!Utilities.config.disableVideo){
+            this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
+        }
+
+        if(!Utilities.config.disableVideo || !Utilities.config.disableChat){
+            this.videoCallPanel.appendChild(this.videoCallPanelResizer);
+        }
+
+        if(!Utilities.config.disableVideo){
+
+            this.videoCallPanelVideos.appendChild(this.videoCallPanelLocalStream);
+            this.videoCallPanelVideos.appendChild(this.videoCallPanelRemoteStream[0]);
+            this.videoCallPanel.appendChild(this.videoCallPanelVideos);
+        }           
+        
+
 
         if(!Utilities.config.disableChat){
             this.makeChatUI();
@@ -254,7 +274,7 @@ class GWatch{
 
         this.localFileSelector.onchange = function(e){ this.onSrcSelected(e); }.bind(this);
 
-        this.containerEle.parentElement.appendChild(this.localFileSelector);
+        document.getElementById("GWatch_playerContainer").appendChild(this.localFileSelector);
     }
 
 

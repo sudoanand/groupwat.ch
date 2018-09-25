@@ -60,13 +60,13 @@
 
 #GWatch_panResizer {
 	position: absolute;
-    left: -9px;
+    left: -8px;
     top: 0;
     bottom: 0;
     border-right: 1px dotted #3a3838;
     width: 8px;
     background: rgba(0,0,0,0);
-    z-index: 55;
+    z-index: 999;
     cursor: w-resize;
 }
 
@@ -80,7 +80,10 @@
     z-index: 99;
     display: inline-block;
 }
-
+.GWatch_chatInput{
+    z-index: 99;
+    background: #f9f8f8;
+}
 #GWatch_camContainer {
     position: fixed;
     bottom: 0px;
