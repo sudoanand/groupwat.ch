@@ -34,10 +34,10 @@ class GWatchSocketServer  implements MessageComponentInterface{
                 $message = json_decode($msg);
 
                 //Send to the members of same room only
-                if($message->roomId == $this->clients[$client]){
+                //if($message->roomId == $this->clients[$client]){
 
 	                $client->send(json_encode($message));
-                }
+                //}
             }
         }
     }
