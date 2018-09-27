@@ -2,11 +2,16 @@
   "name": "groupwat.ch",
   "version": "1.0.0",
   "description": "Make your own video room to watch videos remotely with all your friends",
-  "main": "src/index.js",
+  "main": "dist/bundle.js",
+  "unpkg": "dist/bundle.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
+    "build": "webpack --config webpack.prod.js",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -22,7 +27,7 @@
     "streaming"
   ],
   "author": "@hack4mer",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/hack4mer/groupwat.ch/issues"
   },

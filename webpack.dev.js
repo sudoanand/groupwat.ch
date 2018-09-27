@@ -21,9 +21,9 @@ module.exports = {
   entry: path.resolve(__dirname,'./src/js/GWatch.js'),
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, "./build/"),
+    path: path.resolve(__dirname, "./dist/"),
     filename: 'bundle.js',
-    publicPath: "/build/",
+    publicPath: "/dist/",
     libraryTarget: 'var',
     library: 'GWatch'
   },
