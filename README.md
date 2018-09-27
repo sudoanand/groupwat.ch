@@ -18,15 +18,15 @@ Please note that many people might be using the demo page (the demo socket serve
 ## QuickStart
 Include CSS
 
-    <link href="https://vjs.zencdn.net/7.1.0/video-js.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
+    <link href="https://unpkg.com/video.js@7.1.0/dist/video-js.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/groupwat.ch/dist/styles.css">
 
 
 Include JS
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/video.js/dist/video.js"></script>
+    <script src="https://unpkg.com/video.js@7.1.0/dist/video.js"></script>
     <script src="https://unpkg.com/groupwat.ch/dist/bundle.js"></script>
 
 
