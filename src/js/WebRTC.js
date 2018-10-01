@@ -93,6 +93,7 @@ export class WebRTC{
 	gotRemoteStream(event) {
 	  console.log('got remote stream');
 	  this.remoteVideo.srcObject = event.streams[0];
+	  this.remoteVideo.style.height = "auto";
 	}
 
 	errorHandler(error) {

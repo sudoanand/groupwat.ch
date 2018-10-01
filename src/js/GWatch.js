@@ -217,9 +217,11 @@ class GWatch{
 
         if(!Utilities.config.disableVideo){
 
-            this.videoCallPanelVideos.appendChild(this.videoCallPanelLocalStream);
             this.videoCallPanelVideos.appendChild(this.videoCallPanelRemoteStream[0]);
+            this.videoCallPanelVideos.appendChild(this.videoCallPanelLocalStream);
             this.videoCallPanel.appendChild(this.videoCallPanelVideos);
+
+            //this.addTestVideoFrames();
         }           
         
 
@@ -231,6 +233,19 @@ class GWatch{
 
         //Add the video panel to dom
         this.containerEle.appendChild(this.videoCallPanel);
+    }
+
+
+    addTestVideoFrames(){
+
+        //only for development purpose, should be removed
+        for(var i=0; i < 10; i++){
+            this.videoCallPanelLocalStream_x = this.createVideoStreamHolder({
+                id : "localVideo"+Math.random()*10,
+                autoplay : "",
+            });            
+            this.videoCallPanelVideos.appendChild(this.videoCallPanelLocalStream_x);
+        }
     }
 
 

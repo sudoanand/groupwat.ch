@@ -20,7 +20,7 @@
     width: 100%;
     right: 0px;
     display: block;
-    height: 30%;
+    height: 30vh;
 }
 .GWatch_chat_subcontainer{
     height: 100%;
@@ -29,7 +29,7 @@
     padding: 10px;
     overflow: scroll;
     height: 100%;
-    background: #fff;    
+    background: #f5f5f5;    
     padding-bottom: 33px;
     box-sizing: border-box;
 }
@@ -54,18 +54,25 @@
     -moz-transform:rotateY(180deg); /* Firefox */
     width: 100%;
 }
+#remoteVideo{
+    height: 0px;
+}
 .disableResizer #GWatch_panResizer {
     display: none;
 }
 
 #GWatch_panResizer {
 	position: absolute;
-    left: -8px;
+    left: 0px;
     top: 0;
     bottom: 0;
-    border-right: 1px dotted #3a3838;
-    width: 8px;
-    background: rgba(0,0,0,0);
+    border-right:1px;
+    border-left:1px;
+    border-style:dotted;
+    border-color: #3a3838;
+    width: 5px;
+    background:#fff;
+    height: 100%;
     z-index: 999;
     cursor: w-resize;
 }
@@ -90,6 +97,7 @@
     right: 0px;
     height: 100%;
     width: 20%;
+    background: #f5f5f5;
     display: inline-block;
 }
 
@@ -120,4 +128,13 @@ li.nav-item {
 
 .socket_log{
 	margin: 40px auto;
+}
+
+.GWatch_camContainer_videos{
+    height: 70vh;
+    background: #f5f5f5;
+    overflow: scroll;
+}
+
+.GWatch_camContainer_videos video{
 }
