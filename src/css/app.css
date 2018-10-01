@@ -89,8 +89,10 @@
 }
 .GWatch_chatInput{
     z-index: 99;
-    background: #f9f8f8;
+    font-size: 20px;
+    background: #fff;
 }
+
 #GWatch_camContainer {
     position: fixed;
     bottom: 0px;
