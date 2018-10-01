@@ -27,7 +27,7 @@ Include JS
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/video.js@7.1.0/dist/video.js"></script>
-    <script src="https://unpkg.com/groupwat.ch/dist/js/bundle.min.js"></script>
+    <script src="https://unpkg.com/groupwat.ch"></script>
 
 
 Initialize the plugin
