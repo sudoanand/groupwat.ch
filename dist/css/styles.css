@@ -1,0 +1,186 @@
+.GWatch_container{
+    position: relative;
+    width: 640px;
+    display: inline-block;
+    text-align: left;
+    max-width: 100%;
+}
+
+.fullscreen_vidjs .video-js{
+	width: 100%;
+	height: 100%;
+}
+
+.fullscreen_vidjs #GWatch_playerContainer{
+	height: 100%;
+}
+.GWatch_chat_container{
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    right: 0px;
+    display: block;
+    height: 30vh;
+}
+.GWatch_chat_subcontainer{
+    height: 100%;
+}
+.GWatch_chatBoxPaper{
+    padding: 10px;
+    overflow: scroll;
+    height: 100%;
+    background: #f5f5f5;    
+    padding-bottom: 33px;
+    box-sizing: border-box;
+}
+
+.GWatch_chat_container div,.GWatch_chatInput{
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+}
+.GWatch_chat_container input{
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 10px;
+}
+
+.mirrored_video
+{
+    transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+    width: 100%;
+}
+#remoteVideo{
+    height: 0px;
+}
+.disableResizer #GWatch_panResizer {
+    display: none;
+}
+
+#GWatch_panResizer {
+	position: absolute;
+    left: 0px;
+    top: 0;
+    bottom: 0;
+    border-right:1px;
+    border-left:1px;
+    border-style:dotted;
+    border-color: #3a3838;
+    width: 5px;
+    background:#fff;
+    height: 100%;
+    z-index: 999;
+    cursor: w-resize;
+}
+
+.vjs-fullscreen{
+	display: none;
+}
+
+#GWatch_playerContainer {
+    position: relative;
+    width: 100%;
+    z-index: 99;
+    display: inline-block;
+}
+.GWatch_chatInput{
+    z-index: 99;
+    background: #f9f8f8;
+}
+#GWatch_camContainer {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    height: 100%;
+    width: 20%;
+    background: #f5f5f5;
+    display: inline-block;
+}
+
+#GWatch_camContainer video{
+	z-index: 1;
+	position: relative;
+}
+
+.vjs-custom-icon{
+	font-size: initial;
+	cursor: pointer;
+}
+
+li.nav-item {
+    margin: 0px 10px;
+}
+
+
+.vjs-custom-icon .icon{
+	position: absolute;
+	top: 7px;
+}
+
+.video-js{
+	width: 100%;
+	height: 360px;
+}
+
+.socket_log{
+	margin: 40px auto;
+}
+
+.GWatch_camContainer_videos{
+    height: 70vh;
+    background: #f5f5f5;
+    overflow: scroll;
+}
+
+.GWatch_camContainer_videos video{
+}/*Mobile screen landscape mode*/
+@media only screen and (max-width: 1110px) {
+
+	.video-js{
+		height: 260px;
+	}
+
+	.GWatch_container{
+		margin:0px !important;
+	}
+}
+
+/*Mobile screens portrait mode*/
+@media only screen and (max-width: 480px) {
+	.GWatch_chat_container{
+		position: fixed;
+		height: 25vh;
+	}
+
+	#GWatch_camContainer{
+		width:100% !important;
+		overflow-x: scroll;
+	}
+
+	.GWatch_camContainer_videos{
+		min-width: 1000px;
+	}
+
+	.video-js{
+		height: 30vh;
+	}
+
+
+	.GWatch_camContainer_videos video{
+	    display: inline-block;
+	    height: 17vh;
+	    width: auto;
+	}
+
+	.fullscreen_vidjs #GWatch_camContainer{
+		z-index: 99;
+	}
+
+	.fullscreen_vidjs #GWatch_playerContainer{
+		width: 100% !important;
+	}
+}
