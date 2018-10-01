@@ -21,6 +21,7 @@
     right: 0px;
     display: block;
     height: 30vh;
+    z-index: 9;
 }
 
 .GWatch_chatBoxPaper p {
