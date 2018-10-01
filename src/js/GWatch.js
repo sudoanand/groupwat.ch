@@ -103,6 +103,9 @@ class GWatch{
         //Enable panel resizer 
         this.enablePanelResizer();
 
+        //Enable chat resizer 
+        this.enableChatResizer();
+
         //Initialize the player if src is provided
         if(this.config.src){
             this.changePlayerSource(this.config.src);
@@ -261,6 +264,11 @@ class GWatch{
         this.chatBox = document.createElement("div");
         this.chatBox.setAttribute("class","GWatch_chat_subcontainer");
 
+        this.chatResizer = document.createElement("div");
+        this.chatResizer.classList.add("GWatch_chat_resizer");
+
+        this.chatBox.appendChild(this.chatResizer);
+
         this.chatBoxInput = document.createElement("input");
         this.chatBoxInput.setAttribute("class","GWatch_chatInput");
         this.chatBoxInput.setAttribute("type","text");
@@ -375,6 +383,49 @@ class GWatch{
         }.bind(this)).on('mouseup', function (e) {
             // stop resizing
             this.isResizing = false;
+        }.bind(this));
+    }
+
+    /**
+     * Enable chat resizer
+     */
+    enableChatResizer(){
+
+        this.isChatResizing = false,    
+        this.lastChatDownY = 0;
+
+
+        var container = $('#GWatch_camContainer'),
+            up = $('.GWatch_camContainer_videos','#'+Utilities.config.container),
+            down = $('.GWatch_chat_container','#'+Utilities.config.container),
+            handle = $('.GWatch_chat_resizer','#'+Utilities.config.container);
+
+
+
+        handle.on('mousedown', function (e) {
+            this.isChatResizing = true;
+            this.lastChatDownY = e.clientY;
+            console.log(this.lastChatDownY);
+        }.bind(this));
+
+        $(document).on('mousemove', function (e) {
+
+            // we don't want to do anything if we aren't resizing.
+            if (!this.isChatResizing) 
+                return;
+            
+            var offsetUp  =  e.clientY;
+            var offsetDown = container.height()-offsetUp;
+
+            if(offsetDown > container.height()){
+                return ;
+            }
+
+            up.css('height', offsetUp);
+            down.css('height', offsetDown);
+        }.bind(this)).on('mouseup', function (e) {
+            // stop resizing
+            this.isChatResizing = false;
         }.bind(this));
     }
 

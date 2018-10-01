@@ -50,8 +50,9 @@
     padding-bottom: 50px;
 }
 
-.GWatch_chat_container div,.GWatch_chatInput{
+.GWatch_chat_container > div,.GWatch_chatInput{
     position: absolute;
+    box-sizing: border-box;
     bottom: 0px;
     right: 0px;
     left: 0px;
@@ -90,11 +91,20 @@
     background:#fff;
     height: 100%;
     z-index: 999;
-    cursor: w-resize;
+    cursor: col-resize;
 }
 
 .vjs-fullscreen{
 	display: none;
+}
+
+.GWatch_chat_resizer {
+    border-style: dotted;
+    cursor: row-resize;
+    height: 1px;
+    border-width: 1px;
+    background-color: white;
+    padding-bottom: 0px !important;
 }
 
 #GWatch_playerContainer {
@@ -105,7 +115,7 @@
 }
 .GWatch_chatInput{
     z-index: 99;
-    font-size: 20px;
+    font-size: 15px;
     background: #fff;
 }
 
