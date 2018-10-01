@@ -40,14 +40,16 @@ Socket.prototype.onMessage = function(ev){
 
     console.log(response);
 
-    var chatMsg = document.createElement("p");
+    var chatMsgP = document.createElement("p");
+    var chatMsg = document.createElement("span");
     chatMsg.innerHTML = response.value
     chatMsg.style.color = "red";
     chatMsg.style['text-align'] = "left";
 
+    chatMsgP.appendChild(chatMsg);
 
     var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
-    chatHolder.appendChild(chatMsg);
+    chatHolder.appendChild(chatMsgP);
     chatHolder.scrollTop = chatHolder.scrollHeight;
 
     this.playNotificationSound();

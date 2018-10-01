@@ -310,15 +310,17 @@ class GWatch{
 
     sendChat(message){
 
-        var chatMsg = document.createElement("p");
-        chatMsg.innerHTML = message
+        var chatMsgP = document.createElement("p");
+        var chatMsg = document.createElement("span");
+        chatMsg.innerHTML = message;
         chatMsg.style.color = "blue";
-        chatMsg.style['text-align'] = "right";
+        chatMsgP.style['text-align'] = "right";
 
+        chatMsgP.appendChild(chatMsg);
 
         var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
-        chatHolder.appendChild(chatMsg);
-        chatHolder.scrollTop = chatHolder.scrollHeight;
+        chatHolder.appendChild(chatMsgP);
+        chatHolder.scrollTop = chatHolder.scrollHeight+50;
 
         this.chatBoxInput.value = "";
 
