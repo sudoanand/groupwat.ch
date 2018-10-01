@@ -213,6 +213,9 @@ var GWatch = function () {
         //Enable panel resizer 
         this.enablePanelResizer();
 
+        //Enable chat resizer 
+        this.enableChatResizer();
+
         //Initialize the player if src is provided
         if (this.config.src) {
             this.changePlayerSource(this.config.src);
@@ -377,6 +380,11 @@ var GWatch = function () {
             this.chatBox = document.createElement("div");
             this.chatBox.setAttribute("class", "GWatch_chat_subcontainer");
 
+            this.chatResizer = document.createElement("div");
+            this.chatResizer.classList.add("GWatch_chat_resizer");
+
+            this.chatBox.appendChild(this.chatResizer);
+
             this.chatBoxInput = document.createElement("input");
             this.chatBoxInput.setAttribute("class", "GWatch_chatInput");
             this.chatBoxInput.setAttribute("type", "text");
@@ -479,18 +487,59 @@ var GWatch = function () {
                 // we don't want to do anything if we aren't resizing.
                 if (!this.isResizing) return;
 
-                var offsetRight = e.clientX;
-                var offseLeft = container.width() - offsetRight;
+                var offsetLeft = e.clientX;
+                var offsetRight = container.width() - offsetLeft;
 
-                if (offsetRight > container.width()) {
+                if (offsetLeft > container.width() || offsetRight < 4) {
                     return;
                 }
 
-                left.css('width', offsetRight);
-                right.css('width', offseLeft);
+                left.css('width', offsetLeft);
+                right.css('width', offsetRight);
             }.bind(this)).on('mouseup', function (e) {
                 // stop resizing
                 this.isResizing = false;
+            }.bind(this));
+        }
+
+        /**
+         * Enable chat resizer
+         */
+
+    }, {
+        key: 'enableChatResizer',
+        value: function enableChatResizer() {
+
+            this.isChatResizing = false, this.lastChatDownY = 0;
+
+            var container = (0, _jquery2.default)('#GWatch_camContainer'),
+                up = (0, _jquery2.default)('.GWatch_camContainer_videos', '#' + _Utilities.Utilities.config.container),
+                down = (0, _jquery2.default)('.GWatch_chat_container', '#' + _Utilities.Utilities.config.container),
+                handle = (0, _jquery2.default)('.GWatch_chat_resizer', '#' + _Utilities.Utilities.config.container);
+
+            handle.on('mousedown', function (e) {
+                this.isChatResizing = true;
+                this.lastChatDownY = e.clientY;
+                console.log(this.lastChatDownY);
+            }.bind(this));
+
+            (0, _jquery2.default)(document).on('mousemove', function (e) {
+
+                // we don't want to do anything if we aren't resizing.
+                if (!this.isChatResizing) return;
+
+                var offsetUp = e.clientY;
+                var offsetDown = container.height() - offsetUp;
+
+                if (offsetDown > container.height()) {
+                    return;
+                }
+
+                up.css('height', offsetUp);
+                down.css('height', offsetDown);
+            }.bind(this)).on('mouseup', function (e) {
+                // stop resizing
+                this.isChatResizing = false;
             }.bind(this));
         }
 
@@ -1258,7 +1307,7 @@ var Socket = exports.Socket = function Socket(socket_server) {
   this.websocket.onerror = _Utilities.Utilities.onSocketError.bind(this);
   this.websocket.onclose = _Utilities.Utilities.onSocketError.bind(this);
 
-  this.notificationAudio = new Audio('../dist/audio/to-the-point.mp3');
+  this.notificationAudio = new Audio('https://daf0mtu6jztqj.cloudfront.net/wp-content/uploads/20181001182143/to-the-point.mp3');
 };
 
 Socket.prototype.playNotificationSound = function () {
