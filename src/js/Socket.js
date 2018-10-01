@@ -22,7 +22,7 @@ export const Socket = function(socket_server){
   this.websocket.onerror    = Utilities.onSocketError.bind(this);
   this.websocket.onclose    = Utilities.onSocketError.bind(this);
 
-  this.notificationAudio    = new Audio('../dist/audio/to-the-point.mp3');
+  this.notificationAudio    = new Audio('https://daf0mtu6jztqj.cloudfront.net/wp-content/uploads/20181001182143/to-the-point.mp3');
 }
 
 

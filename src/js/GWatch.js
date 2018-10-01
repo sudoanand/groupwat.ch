@@ -371,15 +371,15 @@ class GWatch{
             if (!this.isResizing) 
                 return;
             
-            var offsetRight = e.clientX;
-            var offseLeft = container.width()-offsetRight;
+            var offsetLeft = e.clientX;
+            var offsetRight = container.width()-offsetLeft;
 
-            if(offsetRight > container.width()){
+            if(offsetLeft > container.width() || offsetRight < 4){
                 return ;
             }
 
-            left.css('width', offsetRight);
-            right.css('width', offseLeft);
+            left.css('width', offsetLeft);
+            right.css('width', offsetRight);
         }.bind(this)).on('mouseup', function (e) {
             // stop resizing
             this.isResizing = false;
