@@ -1254,6 +1254,13 @@ var Socket = exports.Socket = function Socket(socket_server) {
   this.websocket.onmessage = this.onMessage;
   this.websocket.onerror = _Utilities.Utilities.onSocketError.bind(this);
   this.websocket.onclose = _Utilities.Utilities.onSocketError.bind(this);
+
+  this.notificationAudio = new Audio('../dist/audio/to-the-point.mp3');
+};
+
+Socket.prototype.playNotificationSound = function () {
+  console.log("ok");
+  this.notificationAudio.play();
 };
 
 Socket.prototype.onMessage = function (ev) {
@@ -1272,6 +1279,8 @@ Socket.prototype.onMessage = function (ev) {
     var chatHolder = document.getElementsByClassName(_Utilities.Utilities.config.chatBoxPaperClass)[0];
     chatHolder.appendChild(chatMsg);
     chatHolder.scrollTop = chatHolder.scrollHeight;
+
+    this.playNotificationSound();
     return;
   }
 
