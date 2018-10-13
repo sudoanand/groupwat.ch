@@ -146,7 +146,7 @@ var GWatch = function () {
                 console.log("socket connected");
             },
             onSocketError: options.onSocketError || function () {
-                _Utilities.Utilities.notifyError("socket connection failed");
+                console.error("socket connection failed");
             },
 
             //hardcoded configurations
@@ -457,7 +457,7 @@ var GWatch = function () {
                 value: message
             };
 
-            console.log(socketPayload);
+            _Utilities.Utilities.log(socketPayload);
 
             _Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
         }
@@ -520,7 +520,7 @@ var GWatch = function () {
             handle.on('mousedown', function (e) {
                 this.isChatResizing = true;
                 this.lastChatDownY = e.clientY;
-                console.log(this.lastChatDownY);
+                _Utilities.Utilities.log(this.lastChatDownY);
             }.bind(this));
 
             (0, _jquery2.default)(document).on('mousemove', function (e) {
@@ -984,9 +984,8 @@ var VideoPlayer = exports.VideoPlayer = function () {
 
 					//Notify peers
 					_Utilities.Utilities.log("Video paused", "Sending socket message");
-					if (_Utilities.Utilities.logging) {
-						console.log(socketPayload);
-					}
+
+					_Utilities.Utilities.log(socketPayload);
 
 					_Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
 				}
@@ -1013,9 +1012,8 @@ var VideoPlayer = exports.VideoPlayer = function () {
 
 					//Notify peers
 					_Utilities.Utilities.log("Video played", "Sending socket message");
-					if (_Utilities.Utilities.logging) {
-						console.log(socketPayload);
-					}
+					_Utilities.Utilities.log(socketPayload);
+
 					_Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
 				}
 
@@ -1048,9 +1046,8 @@ var VideoPlayer = exports.VideoPlayer = function () {
 
 					//Notify peers
 					_Utilities.Utilities.log("Sending seeked singal message");
-					if (_Utilities.Utilities.logging) {
-						console.log(socketPayload);
-					}
+					_Utilities.Utilities.log(socketPayload);
+
 					_Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
 				}
 
@@ -1108,7 +1105,7 @@ var Utilities = exports.Utilities = function () {
                 return;
             } //Disabled when not in devmode
 
-            console.log("GWatch: ", [].slice.call(arguments).join(","));
+            console.log("groupwat.ch log: ", arguments);
         }
 
         /**
@@ -1311,7 +1308,6 @@ var Socket = exports.Socket = function Socket(socket_server) {
 };
 
 Socket.prototype.playNotificationSound = function () {
-  console.log("ok");
   this.notificationAudio.play();
 };
 
@@ -1321,7 +1317,7 @@ Socket.prototype.onMessage = function (ev) {
 
   if (response.key == "chat") {
 
-    console.log(response);
+    _Utilities.Utilities.log(response);
 
     var chatMsgP = document.createElement("p");
     var chatMsg = document.createElement("span");
@@ -1348,11 +1344,7 @@ Socket.prototype.onMessage = function (ev) {
   _Utilities.Utilities.video.notifyPeers = false;
 
   _Utilities.Utilities.log("Socket message received:", _Utilities.Utilities.video.notifyPeers);
-  if (_Utilities.Utilities.logging) {
-    console.log(response);
-  }
-
-  console.log(response);
+  _Utilities.Utilities.log(response);
 
   if (response.key == "seek_value") {
 
@@ -1469,8 +1461,9 @@ var WebRTC = exports.WebRTC = function () {
 					}
 				}.bind(this)).catch(this.errorHandler);
 			} else if (signal.ice) {
-				console.log(message);
-				console.log("Adding : ", signal.ice.candidate);
+				_Utilities.Utilities.log(message);
+				_Utilities.Utilities.log("Adding : ", signal.ice.candidate);
+
 				this.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 			}
 		}
@@ -1484,7 +1477,7 @@ var WebRTC = exports.WebRTC = function () {
 	}, {
 		key: 'createdDescription',
 		value: function createdDescription(description) {
-			console.log('got description');
+			_Utilities.Utilities.log('got description');
 
 			this.peerConnection.setLocalDescription(description).then(function () {
 				this.serverConnection.send(JSON.stringify({ 'roomId': _Utilities.Utilities.roomId, 'sdp': this.peerConnection.localDescription, 'uuid': this.uuid }));
@@ -1493,7 +1486,7 @@ var WebRTC = exports.WebRTC = function () {
 	}, {
 		key: 'gotRemoteStream',
 		value: function gotRemoteStream(event) {
-			console.log('got remote stream');
+			_Utilities.Utilities.log('got remote stream');
 			this.remoteVideo.srcObject = event.streams[0];
 			this.remoteVideo.style.height = "auto";
 		}
