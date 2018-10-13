@@ -19,14 +19,22 @@
   <script src="../dist/js/bundle.js"></script>
   <script type="text/javascript">
 
-    var config = {
-      container : 'video_container',
-      src : 'https://vjs.zencdn.net/v/oceans.mp4',
-      socket_server : "wss://s1.site4m.com/wss2/",
-      videoCall:true
-    }
+    var room_id = window.prompt("Please enter a room ID (example: anand1998), your friend needs to enter the same when he joins the channel");
 
-    var mGWatch = new GWatch(config);
+
+    if(room_id){
+      var config = {
+        container : 'video_container',
+        src : 'https://vjs.zencdn.net/v/oceans.mp4',
+        socket_server : 'wss://connect.websocket.in/hack4mer_githubdemo?room_id='+room_id,
+        videoCall: true
+      }
+
+      var mGWatch = new GWatch(config);    
+    }else{
+      alert("Room ID is required");
+      window.location.href = window.location.href;
+    }
   </script>
 </body>
 </html>
