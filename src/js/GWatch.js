@@ -31,8 +31,8 @@ class GWatch{
             localSource : options.localSource || false,
             disableChat : options.disableChat || false,
             disableVideo : options.disableVideo || false,
-            onSocketConnected : options.onSocketConnected || function(){ Utilities.log("socket connected");},
-            onSocketError : options.onSocketError || function(){ Utilities.notifyError("socket connection failed"); },
+            onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
+            onSocketError : options.onSocketError || function(){ console.error("socket connection failed"); },
 
             //hardcoded configurations
             mainPlayerId : "GWatch_mainPlayer",
