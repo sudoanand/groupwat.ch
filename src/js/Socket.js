@@ -27,7 +27,6 @@ export const Socket = function(socket_server){
 
 
 Socket.prototype.playNotificationSound = function(){
-  console.log("ok");
   this.notificationAudio.play();
 }
 
@@ -38,7 +37,7 @@ Socket.prototype.onMessage = function(ev){
 
   if(response.key=="chat"){
 
-    console.log(response);
+    Utilities.log(response);
 
     var chatMsgP = document.createElement("p");
     var chatMsg = document.createElement("span");
@@ -65,12 +64,8 @@ Socket.prototype.onMessage = function(ev){
   Utilities.video.notifyPeers = false; 
   
   Utilities.log("Socket message received:",Utilities.video.notifyPeers); 
-  if(Utilities.logging){
-    console.log(response);
-  }
-
-  console.log(response);
-
+  Utilities.log(response);
+  
   if(response.key=="seek_value"){
 
     Utilities.player.currentTime(response.value.time); //Seek the video

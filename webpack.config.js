@@ -7,7 +7,7 @@ var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 module.exports = function(env){
 
 const env_mode = env ? env.mode || "none":"none";
-if(env_mode=="development") console.log("NOTE : \n - This project requires HTTPS   \n - Even the dev-server is running on HTTPS  \n - You need to accept the unsecure SSL warning \n - Not mandatory, but if you wish to remove the warning, have a look at webpack.dev.js\n\n");
+if(env_mode=="development") console.log("NOTE : \n - This project requires HTTPS   \n - Even the dev-server is running on HTTPS  \n - You need to accept the unsecure SSL warning\n\n");
 
 
  return {

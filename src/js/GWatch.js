@@ -31,7 +31,7 @@ class GWatch{
             localSource : options.localSource || false,
             disableChat : options.disableChat || false,
             disableVideo : options.disableVideo || false,
-            onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
+            onSocketConnected : options.onSocketConnected || function(){ Utilities.log("socket connected");},
             onSocketError : options.onSocketError || function(){ Utilities.notifyError("socket connection failed"); },
 
             //hardcoded configurations
@@ -340,7 +340,7 @@ class GWatch{
             value : message
         };
 
-        console.log(socketPayload);
+        Utilities.log(socketPayload);
 
         Utilities.websocket.send(JSON.stringify(socketPayload)); 
     }
@@ -405,7 +405,7 @@ class GWatch{
         handle.on('mousedown', function (e) {
             this.isChatResizing = true;
             this.lastChatDownY = e.clientY;
-            console.log(this.lastChatDownY);
+            Utilities.log(this.lastChatDownY);
         }.bind(this));
 
         $(document).on('mousemove', function (e) {

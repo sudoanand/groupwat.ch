@@ -340,9 +340,9 @@ export class VideoPlayer{
 		
 		//Notify peers
 		Utilities.log("Video paused","Sending socket message");            
-		if(Utilities.logging){
-		  console.log(socketPayload)
-		}
+		
+		Utilities.log(socketPayload)
+		
 
 		Utilities.websocket.send(JSON.stringify(socketPayload)); 
 	  }
@@ -369,9 +369,8 @@ export class VideoPlayer{
 
 		//Notify peers
 		Utilities.log("Video played","Sending socket message");
-		if(Utilities.logging){
-		  console.log(socketPayload)
-		}
+		Utilities.log(socketPayload)
+		
 		Utilities.websocket.send(JSON.stringify(socketPayload)); 
 	  }
 	  
@@ -403,9 +402,8 @@ export class VideoPlayer{
 
 		//Notify peers
 		Utilities.log("Sending seeked singal message");
-		if(Utilities.logging){
-		  console.log(socketPayload)
-		}
+		Utilities.log(socketPayload)
+
 		Utilities.websocket.send(JSON.stringify(socketPayload)); 
 	  }
 

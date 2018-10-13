@@ -17,7 +17,7 @@ export  class Utilities{
 
         if(!this.logging) { return; } //Disabled when not in devmode
 
-        console.log("GWatch: ",[].slice.call(arguments).join(",")); 
+        console.log("groupwat.ch log: ",arguments); 
     }
 
 

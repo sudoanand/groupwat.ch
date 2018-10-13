@@ -70,8 +70,9 @@ export class WebRTC{
 			  }
 			}.bind(this)).catch(this.errorHandler);
 		} else if(signal.ice) {
-			console.log(message);
-			console.log("Adding : ",signal.ice.candidate);
+			Utilities.log(message);
+			Utilities.log("Adding : ",signal.ice.candidate);
+
 			this.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 		}
 	}
@@ -83,7 +84,7 @@ export class WebRTC{
 	}
 
 	createdDescription(description) {
-	  console.log('got description');
+	  Utilities.log('got description');
 
 	  this.peerConnection.setLocalDescription(description).then(function() {
 	    this.serverConnection.send(JSON.stringify({'roomId': Utilities.roomId,'sdp': this.peerConnection.localDescription, 'uuid': this.uuid}));
@@ -91,7 +92,7 @@ export class WebRTC{
 	}
 
 	gotRemoteStream(event) {
-	  console.log('got remote stream');
+	  Utilities.log('got remote stream');
 	  this.remoteVideo.srcObject = event.streams[0];
 	  this.remoteVideo.style.height = "auto";
 	}
