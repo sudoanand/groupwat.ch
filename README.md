@@ -17,21 +17,25 @@ Please note that many people might be using the demo page (the demo socket serve
 
 **Note :  current version on Groupwat.ch supports two peers (people) only, we are adding multiple peer support very soon**
 ## QuickStart
-Include CSS
+#### Include CSS
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.css">
     <link href="https://unpkg.com/video.js@7.1.0/dist/video-js.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/groupwat.ch/dist/css/styles.min.css">
 
 
-Include JS
+#### Include JS
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/video.js@7.1.0/dist/video.js"></script>
     <script src="https://unpkg.com/groupwat.ch"></script>
 
 
-Initialize the plugin: replace `YOUR_CHANNEL_ID` and `YOUR_ROOM_ID` with your own unique identifiers. 
+#### Initialize the plugin
+Replace `YOUR_CHANNEL_ID` and `YOUR_ROOM_ID` with your own unique identifiers. 
+
+Read [WebSocket.in docs](https://www.websocket.in/docs)  to get help with choosing `YOUR_CHANNEL_ID` and `YOUR_ROOM_id`.
+
 
 
     <div id="video_container"></div>  
@@ -49,17 +53,15 @@ Initialize the plugin: replace `YOUR_CHANNEL_ID` and `YOUR_ROOM_ID` with your ow
     </script>
 
 This example code usage free WebSocket server from  [WebSocket.in](https://www.websocket.in/)  for WebRTC signaling, you may use your own WebSocket server if you wish to.
-
-You should read [WebSocket.in docs](https://www.websocket.in/docs)  to get help with choosing `YOUR_CHANNEL_ID` and `YOUR_ROOM_id`.
  
-### Configuration
+## Configuration
 Following are configuration options available for the `GWatch` API
 
 | Option                | Description                                     | Value  |
 | ----------------------------- | ----------------------------------------------------------------------------- | -------------- |
 | container             | ID of the div in which the GWatch UI should load                |  required |
 | socket_server           | Complete URL of the socket server                       |  required |
-| src                 | URL of the video file to play                         |  required or `localSource` should be `true`  |
+| src                 | URL of the video file to play                         |  required, if `localSource != true`  |
 | localSource             | Show a local-disk video file selector                     |  Default: false |
 | videoCall                     | Enable video, voice  & chat features                                          |    Default: false |
 | disableVideo                  | When true: Disables video & voice features, allows chat only                  |    Default: false |
