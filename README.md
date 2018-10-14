@@ -42,7 +42,7 @@ Read [WebSocket.in docs](https://www.websocket.in/docs)  to get help with choosi
     <script type="text/javascript">
 
     var config = {
-      socket_server:'wss://connect.websocket.in/YOUR_CHANNEL_ID?room_id=YOUR_ROOM_ID'
+      socket_server:'wss://connect.websocket.in/YOUR_CHANNEL_ID?room_id=YOUR_ROOM_ID',
       container : 'video_container',
       src : 'https://vjs.zencdn.net/v/oceans.mp4',
       socket_server : "wss://YOUR_SOCKET_SERVER",
