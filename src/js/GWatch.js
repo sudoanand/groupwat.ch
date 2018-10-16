@@ -8,6 +8,7 @@ import $ from 'jquery';
 import {Socket} from './Socket'
 import {Utilities} from './Utilities'
 import {WebRTC} from './WebRTC'
+import {Events} from './Events'
 import styles from '../css/app.css'
 import smallscreen_styles from '../css/app.smallscreen.css'
 
@@ -26,11 +27,13 @@ class GWatch{
             container : options.container || false,
             src : options.src || false,
             videoCall : options.videoCall || false,
-            devmode : options.devmode || false,
-            socket_server : options.socket_server || false,
+            devMode : options.devMode || false,
+            socketServer : options.socketServer || false,
             localSource : options.localSource || false,
             disableChat : options.disableChat || false,
             disableVideo : options.disableVideo || false,
+            peerInfo: options.peerInfo || false,
+            videoStartBtn: options.videoStartBtn===false ? false:true,
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ console.error("socket connection failed"); },
 
@@ -41,20 +44,23 @@ class GWatch{
             chatBoxPaperClass : "GWatch_chatBoxPaper",
         };
 
+        this.events = Events;
+
         if(!this.config.container){
             Utilities.notifyError("GWatch: Please specify the container option.");
             return;
         }
-        else if(!this.config.socket_server){
-            Utilities.notifyError("GWatch: Please specify the socket_server option.");
+        else if(!this.config.socketServer){
+            Utilities.notifyError("GWatch: Please specify the socketServer option.");
             return;
         }else if(!this.config.localSource && !this.config.src){
             Utilities.notifyError("GWatch: Please provide src or set localSource to true.");
             return;
         }
 
-        this.containerEle  = document.getElementById(options.container);
-        this.containerEle.style.display = "flex";
+        this.container  = document.getElementById(options.container);
+
+        this.container.style.display = "flex";
 
 
         //A placeholder for an instance of the VideoPlayer
@@ -72,12 +78,14 @@ class GWatch{
         this.setUpRoomId();
 
         //Set utility options
-        Utilities.config               = this.config;                     // If the logs should appera in the console
-        Utilities.logging               = this.config.devmode;                     // If the logs should appera in the console
+        Utilities.config                = this.config;                     // If the logs should appera in the console
+        Utilities.container             = this.container;                     // If the logs should appera in the console
+        Utilities.events                = Events;                     // If the logs should appera in the console
+        Utilities.logging               = this.config.devMode;                     // If the logs should appera in the console
         Utilities.session_identifier    = this.generateConnectionId();             //A unique identifier for the socket connection    
         Utilities.onSocketConnected     = this.config.onSocketConnected; 
         Utilities.onSocketError         = this.config.onSocketError;
-        Utilities.mSocket               = new Socket(this.config.socket_server);   //Initialize the socket class    
+        Utilities.mSocket               = new Socket(this.config.socketServer);   //Initialize the socket class    
         Utilities.websocket             = Utilities.mSocket.websocket;             //A global variable containing websocket connection object    
 
 
@@ -140,7 +148,7 @@ class GWatch{
      */
     initializeUIElements(){
         //Add the container class
-        this.containerEle.classList.add(this.config.containerClass);
+        this.container.classList.add(this.config.containerClass);
 
         //Setup the main video player
         //Create a conatainer
@@ -170,7 +178,7 @@ class GWatch{
         this.mainVideoPlayer.appendChild(this.mainVideoPlayerP); // Add the p tag inside the video tag
         this.mainVideoPlayerContainer.appendChild(this.mainVideoPlayer); //Add the video player in its container
 
-        this.containerEle.appendChild(this.mainVideoPlayerContainer); //Add the video tag inside the container
+        this.container.appendChild(this.mainVideoPlayerContainer); //Add the video tag inside the container
     }
 
     initializeVideoCallUI(){
@@ -208,9 +216,11 @@ class GWatch{
             autoplay : ""
         });
 
+        //this.videoCallPanelRemoteStream[0].style.display = 'none';
+
 
         //Add all of the above to panel container
-        if(!Utilities.config.disableVideo){
+        if(!Utilities.config.disableVideo && Utilities.config.videoStartBtn){
             this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
         }
 
@@ -235,7 +245,7 @@ class GWatch{
         }
 
         //Add the video panel to dom
-        this.containerEle.appendChild(this.videoCallPanel);
+        this.container.appendChild(this.videoCallPanel);
     }
 
 
@@ -289,6 +299,11 @@ class GWatch{
         this.chatContainer.appendChild(this.chatBox);
     }
 
+
+    openLocalFileSelector(){
+        this.localFileSelector.click();
+    }
+
     initializeLocalFileSelector(){
 
         this.localFileSelector = document.createElement("input");
@@ -315,20 +330,32 @@ class GWatch{
         return videoHolder;
     }
 
-
-    sendChat(message){
+    insertChat(message,styles){
 
         var chatMsgP = document.createElement("p");
         var chatMsg = document.createElement("span");
+
         chatMsg.innerHTML = message;
-        chatMsg.style.color = "blue";
-        chatMsgP.style['text-align'] = "right";
+
+        for(var style in styles){
+            chatMsgP.style[style] = styles[style];
+        }
+
 
         chatMsgP.appendChild(chatMsg);
 
         var chatHolder = document.getElementsByClassName(Utilities.config.chatBoxPaperClass)[0];
         chatHolder.appendChild(chatMsgP);
         chatHolder.scrollTop = chatHolder.scrollHeight+50;
+    }
+
+
+    sendChat(message){
+
+        this.insertChat(message,{
+            'color': 'blue',
+            'text-align': 'right'
+        })
 
         this.chatBoxInput.value = "";
 
@@ -435,6 +462,9 @@ class GWatch{
      */
     onSrcSelected(e){
 
+        //Dispatch the event
+        this.container.dispatchEvent(new CustomEvent(Events.SRC_SELECTED,e));
+
         var 
             file    = e.target.files[0],
             fileUrl = window.URL.createObjectURL(file);
@@ -454,7 +484,7 @@ class GWatch{
         Utilities.log("Changing player's source");
 
         //Change src element
-        this.containerEle.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src",newSrc);
+        this.container.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src",newSrc);
 
         if(typeof Utilities.player=="undefined"){
 
