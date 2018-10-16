@@ -111,11 +111,13 @@ var _Utilities = __webpack_require__(3);
 
 var _WebRTC = __webpack_require__(7);
 
-var _app = __webpack_require__(8);
+var _Events = __webpack_require__(8);
+
+var _app = __webpack_require__(9);
 
 var _app2 = _interopRequireDefault(_app);
 
-var _appSmallscreen = __webpack_require__(10);
+var _appSmallscreen = __webpack_require__(11);
 
 var _appSmallscreen2 = _interopRequireDefault(_appSmallscreen);
 
@@ -137,11 +139,13 @@ var GWatch = function () {
             container: options.container || false,
             src: options.src || false,
             videoCall: options.videoCall || false,
-            devmode: options.devmode || false,
-            socket_server: options.socket_server || false,
+            devMode: options.devMode || false,
+            socketServer: options.socketServer || false,
             localSource: options.localSource || false,
             disableChat: options.disableChat || false,
             disableVideo: options.disableVideo || false,
+            peerInfo: options.peerInfo || false,
+            videoStartBtn: options.videoStartBtn === false ? false : true,
             onSocketConnected: options.onSocketConnected || function () {
                 console.log("socket connected");
             },
@@ -156,19 +160,22 @@ var GWatch = function () {
             chatBoxPaperClass: "GWatch_chatBoxPaper"
         };
 
+        this.events = _Events.Events;
+
         if (!this.config.container) {
             _Utilities.Utilities.notifyError("GWatch: Please specify the container option.");
             return;
-        } else if (!this.config.socket_server) {
-            _Utilities.Utilities.notifyError("GWatch: Please specify the socket_server option.");
+        } else if (!this.config.socketServer) {
+            _Utilities.Utilities.notifyError("GWatch: Please specify the socketServer option.");
             return;
         } else if (!this.config.localSource && !this.config.src) {
             _Utilities.Utilities.notifyError("GWatch: Please provide src or set localSource to true.");
             return;
         }
 
-        this.containerEle = document.getElementById(options.container);
-        this.containerEle.style.display = "flex";
+        this.container = document.getElementById(options.container);
+
+        this.container.style.display = "flex";
 
         //A placeholder for an instance of the VideoPlayer
         this.video = null;
@@ -185,11 +192,13 @@ var GWatch = function () {
 
         //Set utility options
         _Utilities.Utilities.config = this.config; // If the logs should appera in the console
-        _Utilities.Utilities.logging = this.config.devmode; // If the logs should appera in the console
+        _Utilities.Utilities.container = this.container; // If the logs should appera in the console
+        _Utilities.Utilities.events = _Events.Events; // If the logs should appera in the console
+        _Utilities.Utilities.logging = this.config.devMode; // If the logs should appera in the console
         _Utilities.Utilities.session_identifier = this.generateConnectionId(); //A unique identifier for the socket connection    
         _Utilities.Utilities.onSocketConnected = this.config.onSocketConnected;
         _Utilities.Utilities.onSocketError = this.config.onSocketError;
-        _Utilities.Utilities.mSocket = new _Socket.Socket(this.config.socket_server); //Initialize the socket class    
+        _Utilities.Utilities.mSocket = new _Socket.Socket(this.config.socketServer); //Initialize the socket class    
         _Utilities.Utilities.websocket = _Utilities.Utilities.mSocket.websocket; //A global variable containing websocket connection object    
 
 
@@ -256,7 +265,7 @@ var GWatch = function () {
         key: 'initializeUIElements',
         value: function initializeUIElements() {
             //Add the container class
-            this.containerEle.classList.add(this.config.containerClass);
+            this.container.classList.add(this.config.containerClass);
 
             //Setup the main video player
             //Create a conatainer
@@ -286,7 +295,7 @@ var GWatch = function () {
             this.mainVideoPlayer.appendChild(this.mainVideoPlayerP); // Add the p tag inside the video tag
             this.mainVideoPlayerContainer.appendChild(this.mainVideoPlayer); //Add the video player in its container
 
-            this.containerEle.appendChild(this.mainVideoPlayerContainer); //Add the video tag inside the container
+            this.container.appendChild(this.mainVideoPlayerContainer); //Add the video tag inside the container
         }
     }, {
         key: 'initializeVideoCallUI',
@@ -325,8 +334,11 @@ var GWatch = function () {
                 autoplay: ""
             });
 
+            //this.videoCallPanelRemoteStream[0].style.display = 'none';
+
+
             //Add all of the above to panel container
-            if (!_Utilities.Utilities.config.disableVideo) {
+            if (!_Utilities.Utilities.config.disableVideo && _Utilities.Utilities.config.videoStartBtn) {
                 this.videoCallPanel.appendChild(this.videoCallPanelStartBtn);
             }
 
@@ -349,7 +361,7 @@ var GWatch = function () {
             }
 
             //Add the video panel to dom
-            this.containerEle.appendChild(this.videoCallPanel);
+            this.container.appendChild(this.videoCallPanel);
         }
     }, {
         key: 'addTestVideoFrames',
@@ -404,6 +416,11 @@ var GWatch = function () {
             this.chatContainer.appendChild(this.chatBox);
         }
     }, {
+        key: 'openLocalFileSelector',
+        value: function openLocalFileSelector() {
+            this.localFileSelector.click();
+        }
+    }, {
         key: 'initializeLocalFileSelector',
         value: function initializeLocalFileSelector() {
 
@@ -432,20 +449,32 @@ var GWatch = function () {
             return videoHolder;
         }
     }, {
-        key: 'sendChat',
-        value: function sendChat(message) {
+        key: 'insertChat',
+        value: function insertChat(message, styles) {
 
             var chatMsgP = document.createElement("p");
             var chatMsg = document.createElement("span");
+
             chatMsg.innerHTML = message;
-            chatMsg.style.color = "blue";
-            chatMsgP.style['text-align'] = "right";
+
+            for (var style in styles) {
+                chatMsgP.style[style] = styles[style];
+            }
 
             chatMsgP.appendChild(chatMsg);
 
             var chatHolder = document.getElementsByClassName(_Utilities.Utilities.config.chatBoxPaperClass)[0];
             chatHolder.appendChild(chatMsgP);
             chatHolder.scrollTop = chatHolder.scrollHeight + 50;
+        }
+    }, {
+        key: 'sendChat',
+        value: function sendChat(message) {
+
+            this.insertChat(message, {
+                'color': 'blue',
+                'text-align': 'right'
+            });
 
             this.chatBoxInput.value = "";
 
@@ -551,6 +580,9 @@ var GWatch = function () {
         key: 'onSrcSelected',
         value: function onSrcSelected(e) {
 
+            //Dispatch the event
+            this.container.dispatchEvent(new CustomEvent(_Events.Events.SRC_SELECTED, e));
+
             var file = e.target.files[0],
                 fileUrl = window.URL.createObjectURL(file);
 
@@ -572,7 +604,7 @@ var GWatch = function () {
             _Utilities.Utilities.log("Changing player's source");
 
             //Change src element
-            this.containerEle.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src", newSrc);
+            this.container.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src", newSrc);
 
             if (typeof _Utilities.Utilities.player == "undefined") {
 
@@ -614,7 +646,7 @@ module.exports = GWatch;
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+    value: true
 });
 exports.VideoPlayer = undefined;
 
@@ -624,6 +656,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * All the socket notifications are sent by this class
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * @author Ananad <@hack4mer> https://anand.today
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
+
 
 var _video = __webpack_require__(2);
 
@@ -643,421 +676,351 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * Constructor for the videoJS player controller
  */
 var VideoPlayer = exports.VideoPlayer = function () {
-	function VideoPlayer() {
-		var _this = this;
-
-		_classCallCheck(this, VideoPlayer);
-
-		var options = {
-			controlBar: {
-				fullscreenToggle: false,
-				allowFullscreen: false
-			}
-		};
-
-		this.fullscreenmode = false;
-
-		this.lastSeekValue = 0;
-		this.videoSeeking = 0;
-
-		//Decides wether to send event notification to others through the socket   
-		this.notifyPeers = true;
-
-		//Initialize the videojs player
-		this.player = (0, _video2.default)(_Utilities.Utilities.config.mainPlayerId, options, this.onPlayerReady.bind(this));
-		this.containerEle = document.getElementById(_Utilities.Utilities.config.container);
-
-		//Addig the modaldialog class prevents fullscreen on double click
-		this.containerEle.getElementsByClassName("vjs-tech")[0].classList.add("vjs-modal-dialog");
-
-		//Adds all the custom control buttons
-		this.addAllControlBtns();
-
-		//Fullscreen change event		
-		//If videocalls are going on
-		if (_Utilities.Utilities.config.videoCall) {
-
-			["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(function (eventType) {
-				return document.addEventListener(eventType, _this.fullScreenChanged.bind(_this), false);
-			});
-		}
-	}
-
-	/**
-  * Adds all custom btns 
-  */
-
-
-	_createClass(VideoPlayer, [{
-		key: 'addAllControlBtns',
-		value: function addAllControlBtns() {
-
-			//Add subtitle button
-			this.subtitleBtn = this.addNewButton({
-				"id": "addSubsBtn",
-				"icon": "icon-speech",
-				"title": "Add subtitle"
-			}, this.onAddSubBtnClicked.bind(this));
-
-			//Add subtitle button
-			this.fullScreenBtn = this.addNewButton({
-				"id": "fullScreenToogleBtn",
-				"icon": "icon-size-fullscreen",
-				"title": "Toggle fullscreen mode"
-			}, this.toggleFullScreen.bind(this));
-		}
-
-		/**
-   * Handles ecape click in fullscreen mode
-   * @param  event e event object
-   */
-
-	}, {
-		key: 'fullScreenChanged',
-		value: function fullScreenChanged(e) {
-
-			var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-
-			if (!isFullScreen) {
-				this.switchedOffFullscreen();
-			}
-		}
-
-		/**
-  * Toggles the container to fullscreen
-  */
-
-	}, {
-		key: 'toggleFullScreen',
-		value: function toggleFullScreen() {
-
-			if (this.fullscreenmode) {
-
-				this.exitFullscreenMode();
-			} else {
-
-				this.enterFullScreenMode();
-			}
-		}
-	}, {
-		key: 'exitFullscreenMode',
-		value: function exitFullscreenMode() {
-			//Exit fullscreen
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if (document.mozCancelFullScreen) {
-				document.mozCancelFullScreen();
-			} else if (document.webkitCancelFullScreen) {
-				document.webkitCancelFullScreen();
-			}
-
-			this.switchedOffFullscreen();
-		}
-	}, {
-		key: 'enterFullScreenMode',
-		value: function enterFullScreenMode() {
-
-			//Enter fullscreen
-			if (this.containerEle.requestFullscreen) {
-				this.containerEle.requestFullscreen();
-				this.switchedOnFullscreen();
-			} else if (this.containerEle.mozRequestFullScreen) {
-				this.containerEle.mozRequestFullScreen();
-				this.switchedOnFullscreen();
-			} else if (this.containerEle.webkitRequestFullscreen) {
-				this.containerEle.webkitRequestFullscreen();
-				this.switchedOnFullscreen();
-			}
-		}
-	}, {
-		key: 'hideLocalFileSelector',
-		value: function hideLocalFileSelector() {
-			document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "none";
-		}
-	}, {
-		key: 'showLocalFileSelector',
-		value: function showLocalFileSelector() {
-			document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "block";
-		}
-
-		/**
-  * Performs post-nonfullscreenmode task
-  */
-
-	}, {
-		key: 'switchedOffFullscreen',
-		value: function switchedOffFullscreen() {
-			this.fullscreenmode = false;
-			this.containerEle.classList.remove("fullscreen_vidjs");
-
-			if (_Utilities.Utilities.config.localSource) {
-				this.showLocalFileSelector();
-			}
-
-			if (_Utilities.Utilities.config.videoCall) {
-
-				//Resize to default sizes on screen changes
-				document.getElementById("GWatch_playerContainer").style.width = "100%";
-				var camContainer = document.getElementById("GWatch_camContainer");
-				camContainer.style.width = "20%";
-				camContainer.classList.add("disableResizer");
-			}
-		}
-
-		/**
-  * Performs post-fullscreenmode tasks
-  */
-
-	}, {
-		key: 'switchedOnFullscreen',
-		value: function switchedOnFullscreen() {
-			this.fullscreenmode = true;
-			this.containerEle.classList.add("fullscreen_vidjs");
-
-			if (_Utilities.Utilities.config.localSource) {
-				this.hideLocalFileSelector();
-			}
-
-			if (_Utilities.Utilities.config.videoCall) {
-
-				//Resize to default sizes on screen changes		
-				document.getElementById("GWatch_playerContainer").style.width = "80%";
-				var camContainer = document.getElementById("GWatch_camContainer");
-				camContainer.style.width = "20%";
-				camContainer.classList.remove("disableResizer");
-			}
-		}
-
-		/**
-  * Adds new button to the player
-  * @param {object} data an object with valid keys : icon,id,title
-  * @param {function} onClickListener A click listener for the added button
-  */
-
-	}, {
-		key: 'addNewButton',
-		value: function addNewButton(data, onClickListener) {
-
-			var myPlayer = this.player,
-			    controlBar,
-			    insertBeforeNode,
-			    newElement = document.createElement('div'),
-			    newLink = document.createElement('a');
-
-			newElement.id = data.id;
-			newElement.className = 'vjs-custom-icon vjs-control';
-
-			newLink.innerHTML = "<i title='" + data.title + "' class='icon " + data.icon + " line-height' aria-hidden='true'></i>";
-			newElement.appendChild(newLink);
-			controlBar = this.containerEle.getElementsByClassName('vjs-control-bar')[0];
-
-			insertBeforeNode = this.containerEle.getElementsByClassName('vjs-fullscreen-control')[0];
-			controlBar.insertBefore(newElement, insertBeforeNode);
-
-			if (typeof onClickListener != "undefined") {
-				newElement.onclick = onClickListener; //Add the click listener
-			}
-
-			return newElement;
-		}
-
-		/**
-   * Handles click event for the "Add subtitle button"
-   * @return {[type]} [description]
-   */
-
-	}, {
-		key: 'onAddSubBtnClicked',
-		value: function onAddSubBtnClicked() {
-
-			var tempFileInput = $('<input/>').attr('type', 'file').attr('accept', '.vtt,.srt');
-			tempFileInput.change(this.onSubChanged.bind(this));
-
-			//Open the file dialog to select subtitle
-			tempFileInput.trigger('click');
-		}
-
-		/**
-   * Handles the event of a subtitle being changed or added
-   * @param {event} e  jQuery event object
-   */
-
-	}, {
-		key: 'onSubChanged',
-		value: function onSubChanged(e) {
-
-			var file = e.target.files[0],
-			    fileExt = file.name.slice(-3),
-			    fileUrl;
-
-			//Convert to .vtt if the selected file is .srt
-			if (fileExt == "srt") {
-
-				//a .srt file is selected
-				//covert it and enable it
-				this.setSrtSubtitle(file);
-			} else if (fileExt == "vtt") {
-
-				//.vtt is selected, no coversion required
-				fileUrl = window.URL.createObjectURL(file), this.setSubtitle(fileUrl);
-			} else {
-
-				_Utilities.Utilities.notifyError("Only .srt and .vtt files are supported as subtitles");
-			}
-		}
-
-		/**
-   * Sets a given ur as the subtitle of the playing video, removes old ones
-   * @param {string} url remote url to be used as source for the subtitle
-   */
-
-	}, {
-		key: 'setSubtitle',
-		value: function setSubtitle(fileUrl) {
-			//Remove old tracks
-			var oldTracks = this.player.remoteTextTracks();
-			var i = oldTracks.length;
-			while (i--) {
-				this.player.removeRemoteTextTrack(oldTracks[i]);
-			}
-
-			//Add the track to the player
-			this.player.addRemoteTextTrack({ src: fileUrl, kind: 'captions', label: 'captions on' });
-
-			//enable the current subtitle
-			this.player.remoteTextTracks()[0].mode = 'showing';
-		}
-
-		/**
-   * converts a .srt subtitle file to .vtt file and activates it 
-   * @param  {file} file selected subtitle file
-   */
-
-	}, {
-		key: 'setSrtSubtitle',
-		value: function setSrtSubtitle(file) {
-			var _ = this;
-			var vttConverter = new _srtWebvtt2.default(file);
-
-			vttConverter.getURL().then(function (url) {
-
-				//.vtt generated      
-				//Enable the subtitles
-				_.setSubtitle(url);
-			}).catch(function (err) {
-
-				//Error occured during conversion
-				_Utilities.Utilities.notifyError("Selected .srt file seems to be invalid");
-				console.error(err);
-			});
-		}
-
-		/**
-   * Handles videojs player events and notifies peers about the event 
-   * 
-   */
-
-	}, {
-		key: 'onPlayerReady',
-		value: function onPlayerReady() {
-
-			//Palyer is ready
-			_Utilities.Utilities.log('Your player is ready!');
-
-			//Video seeking event handler
-			this.player.on("seeking", function (e) {
-				this.videoSeeking = true;
-				_Utilities.Utilities.log("Video seeking: " + this.player.currentTime());
-			}.bind(this));
-
-			//Video pause event handler
-			this.player.on('pause', function (e) {
-
-				var socketPayload = {
-					roomId: _Utilities.Utilities.roomId,
-					name: _Utilities.Utilities.session_identifier,
-					key: "pause",
-					value: true
-				};
-
-				if (this.notifyPeers) {
-
-					//Notify peers
-					_Utilities.Utilities.log("Video paused", "Sending socket message");
-
-					_Utilities.Utilities.log(socketPayload);
-
-					_Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
-				}
-
-				//Remove the notification lock, if present
-				this.notifyPeers = true;
-			}.bind(this));
-
-			//Video play event handler
-			this.player.on('play', function () {
-
-				if (this.videoSeeking) {
-					return;
-				}
-
-				var socketPayload = {
-					roomId: _Utilities.Utilities.roomId,
-					name: _Utilities.Utilities.session_identifier,
-					key: "play",
-					value: true
-				};
-
-				if (this.notifyPeers) {
-
-					//Notify peers
-					_Utilities.Utilities.log("Video played", "Sending socket message");
-					_Utilities.Utilities.log(socketPayload);
-
-					_Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
-				}
-
-				//Remove the notification lock, if present
-				this.notifyPeers = true;
-			}.bind(this));
-
-			//Video seeke happened event handler
-			this.player.on("seeked", function (e) {
-
-				this.videoSeeking = false;
-				var seekedTo = this.player.currentTime();
-
-				if (seekedTo == this.lastSeekValue) {
-					return;
-				}
-
-				_Utilities.Utilities.log("Video seeked");
-
-				var socketPayload = {
-					roomId: _Utilities.Utilities.roomId,
-					name: _Utilities.Utilities.session_identifier,
-					key: "seek_value",
-					value: { time: seekedTo, play: !this.player.paused() }
-				};
-
-				this.lastSeekValue = seekedTo;
-
-				if (this.notifyPeers) {
-
-					//Notify peers
-					_Utilities.Utilities.log("Sending seeked singal message");
-					_Utilities.Utilities.log(socketPayload);
-
-					_Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
-				}
-
-				//Remove the notification lock, if present
-				this.notifyPeers = true;
-			}.bind(this));
-		}
-	}]);
-
-	return VideoPlayer;
+    function VideoPlayer() {
+        var _this = this;
+
+        _classCallCheck(this, VideoPlayer);
+
+        var options = {
+            controlBar: {
+                fullscreenToggle: false,
+                allowFullscreen: false
+            }
+        };
+        this.fullscreenmode = false;
+        this.lastSeekValue = 0;
+        this.videoSeeking = 0;
+        //Decides wether to send event notification to others through the socket   
+        this.notifyPeers = true;
+        //Initialize the videojs player
+        this.player = (0, _video2.default)(_Utilities.Utilities.config.mainPlayerId, options, this.onPlayerReady.bind(this));
+        this.containerEle = document.getElementById(_Utilities.Utilities.config.container);
+        //Addig the modaldialog class prevents fullscreen on double click
+        this.containerEle.getElementsByClassName("vjs-tech")[0].classList.add("vjs-modal-dialog");
+        //Adds all the custom control buttons
+        this.addAllControlBtns();
+        //Fullscreen change event		
+        //If videocalls are going on
+        if (_Utilities.Utilities.config.videoCall) {
+            ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "msfullscreenchange"].forEach(function (eventType) {
+                return document.addEventListener(eventType, _this.fullScreenChanged.bind(_this), false);
+            });
+        }
+    }
+    /**
+     * Adds all custom btns 
+     */
+
+
+    _createClass(VideoPlayer, [{
+        key: 'addAllControlBtns',
+        value: function addAllControlBtns() {
+            //Add subtitle button
+            this.subtitleBtn = this.addNewButton({
+                "id": "addSubsBtn",
+                "icon": "icon-speech",
+                "title": "Add subtitle"
+            }, this.onAddSubBtnClicked.bind(this));
+            //Add subtitle button
+            this.fullScreenBtn = this.addNewButton({
+                "id": "fullScreenToogleBtn",
+                "icon": "icon-size-fullscreen",
+                "title": "Toggle fullscreen mode"
+            }, this.toggleFullScreen.bind(this));
+        }
+        /**
+         * Handles ecape click in fullscreen mode
+         * @param  event e event object
+         */
+
+    }, {
+        key: 'fullScreenChanged',
+        value: function fullScreenChanged(e) {
+            var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+            if (!isFullScreen) {
+                this.switchedOffFullscreen();
+            }
+        }
+        /**
+         * Toggles the container to fullscreen
+         */
+
+    }, {
+        key: 'toggleFullScreen',
+        value: function toggleFullScreen() {
+            if (this.fullscreenmode) {
+                this.exitFullscreenMode();
+            } else {
+                this.enterFullScreenMode();
+            }
+        }
+    }, {
+        key: 'exitFullscreenMode',
+        value: function exitFullscreenMode() {
+            //Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+            this.switchedOffFullscreen();
+        }
+    }, {
+        key: 'enterFullScreenMode',
+        value: function enterFullScreenMode() {
+            //Enter fullscreen
+            if (this.containerEle.requestFullscreen) {
+                this.containerEle.requestFullscreen();
+                this.switchedOnFullscreen();
+            } else if (this.containerEle.mozRequestFullScreen) {
+                this.containerEle.mozRequestFullScreen();
+                this.switchedOnFullscreen();
+            } else if (this.containerEle.webkitRequestFullscreen) {
+                this.containerEle.webkitRequestFullscreen();
+                this.switchedOnFullscreen();
+            }
+        }
+    }, {
+        key: 'hideLocalFileSelector',
+        value: function hideLocalFileSelector() {
+            document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "none";
+        }
+    }, {
+        key: 'showLocalFileSelector',
+        value: function showLocalFileSelector() {
+            document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "block";
+        }
+        /**
+         * Performs post-nonfullscreenmode task
+         */
+
+    }, {
+        key: 'switchedOffFullscreen',
+        value: function switchedOffFullscreen() {
+            this.fullscreenmode = false;
+            this.containerEle.classList.remove("fullscreen_vidjs");
+            if (_Utilities.Utilities.config.localSource) {
+                this.showLocalFileSelector();
+            }
+            if (_Utilities.Utilities.config.videoCall) {
+                //Resize to default sizes on screen changes
+                document.getElementById("GWatch_playerContainer").style.width = "100%";
+                var camContainer = document.getElementById("GWatch_camContainer");
+                camContainer.style.width = "20%";
+                camContainer.classList.add("disableResizer");
+            }
+        }
+        /**
+         * Performs post-fullscreenmode tasks
+         */
+
+    }, {
+        key: 'switchedOnFullscreen',
+        value: function switchedOnFullscreen() {
+            this.fullscreenmode = true;
+            this.containerEle.classList.add("fullscreen_vidjs");
+            if (_Utilities.Utilities.config.localSource) {
+                this.hideLocalFileSelector();
+            }
+            if (_Utilities.Utilities.config.videoCall) {
+                //Resize to default sizes on screen changes		
+                document.getElementById("GWatch_playerContainer").style.width = "80%";
+                var camContainer = document.getElementById("GWatch_camContainer");
+                camContainer.style.width = "20%";
+                camContainer.classList.remove("disableResizer");
+            }
+        }
+        /**
+         * Adds new button to the player
+         * @param {object} data an object with valid keys : icon,id,title
+         * @param {function} onClickListener A click listener for the added button
+         */
+
+    }, {
+        key: 'addNewButton',
+        value: function addNewButton(data, onClickListener) {
+            var myPlayer = this.player,
+                controlBar,
+                insertBeforeNode,
+                newElement = document.createElement('div'),
+                newLink = document.createElement('a');
+            newElement.id = data.id;
+            newElement.className = 'vjs-custom-icon vjs-control';
+            newLink.innerHTML = "<i title='" + data.title + "' class='icon " + data.icon + " line-height' aria-hidden='true'></i>";
+            newElement.appendChild(newLink);
+            controlBar = this.containerEle.getElementsByClassName('vjs-control-bar')[0];
+            insertBeforeNode = this.containerEle.getElementsByClassName('vjs-fullscreen-control')[0];
+            controlBar.insertBefore(newElement, insertBeforeNode);
+            if (typeof onClickListener != "undefined") {
+                newElement.onclick = onClickListener; //Add the click listener
+            }
+            return newElement;
+        }
+        /**
+         * Handles click event for the "Add subtitle button"
+         * @return {[type]} [description]
+         */
+
+    }, {
+        key: 'onAddSubBtnClicked',
+        value: function onAddSubBtnClicked() {
+            var tempFileInput = $('<input/>').attr('type', 'file').attr('accept', '.vtt,.srt');
+            tempFileInput.change(this.onSubChanged.bind(this));
+            //Open the file dialog to select subtitle
+            tempFileInput.trigger('click');
+        }
+        /**
+         * Handles the event of a subtitle being changed or added
+         * @param {event} e  jQuery event object
+         */
+
+    }, {
+        key: 'onSubChanged',
+        value: function onSubChanged(e) {
+            var file = e.target.files[0],
+                fileExt = file.name.slice(-3),
+                fileUrl;
+            //Convert to .vtt if the selected file is .srt
+            if (fileExt == "srt") {
+                //a .srt file is selected
+                //covert it and enable it
+                this.setSrtSubtitle(file);
+            } else if (fileExt == "vtt") {
+                //.vtt is selected, no coversion required
+                fileUrl = window.URL.createObjectURL(file), this.setSubtitle(fileUrl);
+            } else {
+                _Utilities.Utilities.notifyError("Only .srt and .vtt files are supported as subtitles");
+            }
+        }
+        /**
+         * Sets a given ur as the subtitle of the playing video, removes old ones
+         * @param {string} url remote url to be used as source for the subtitle
+         */
+
+    }, {
+        key: 'setSubtitle',
+        value: function setSubtitle(fileUrl) {
+            //Remove old tracks
+            var oldTracks = this.player.remoteTextTracks();
+            var i = oldTracks.length;
+            while (i--) {
+                this.player.removeRemoteTextTrack(oldTracks[i]);
+            }
+            //Add the track to the player
+            this.player.addRemoteTextTrack({
+                src: fileUrl,
+                kind: 'captions',
+                label: 'captions on'
+            });
+            //enable the current subtitle
+            this.player.remoteTextTracks()[0].mode = 'showing';
+        }
+        /**
+         * converts a .srt subtitle file to .vtt file and activates it 
+         * @param  {file} file selected subtitle file
+         */
+
+    }, {
+        key: 'setSrtSubtitle',
+        value: function setSrtSubtitle(file) {
+            var _ = this;
+            var vttConverter = new _srtWebvtt2.default(file);
+            vttConverter.getURL().then(function (url) {
+                //.vtt generated      
+                //Enable the subtitles
+                _.setSubtitle(url);
+            }).catch(function (err) {
+                //Error occured during conversion
+                _Utilities.Utilities.notifyError("Selected .srt file seems to be invalid");
+                console.error(err);
+            });
+        }
+        /**
+         * Handles videojs player events and notifies peers about the event 
+         * 
+         */
+
+    }, {
+        key: 'onPlayerReady',
+        value: function onPlayerReady() {
+            //Palyer is ready
+            _Utilities.Utilities.log('Your player is ready!');
+            //Video seeking event handler
+            this.player.on("seeking", function (e) {
+                this.videoSeeking = true;
+                _Utilities.Utilities.log("Video seeking: " + this.player.currentTime());
+            }.bind(this));
+            //Video pause event handler
+            this.player.on('pause', function (e) {
+                var socketPayload = {
+                    roomId: _Utilities.Utilities.roomId,
+                    name: _Utilities.Utilities.session_identifier,
+                    key: "pause",
+                    value: true
+                };
+                if (this.notifyPeers) {
+                    //Notify peers
+                    _Utilities.Utilities.log("Video paused", "Sending socket message");
+                    _Utilities.Utilities.log(socketPayload);
+                    _Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
+                }
+                //Remove the notification lock, if present
+                this.notifyPeers = true;
+            }.bind(this));
+            //Video play event handler
+            this.player.on('play', function () {
+                if (this.videoSeeking) {
+                    return;
+                }
+                _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.VIDEO_PLAYED));
+                var socketPayload = {
+                    roomId: _Utilities.Utilities.roomId,
+                    name: _Utilities.Utilities.session_identifier,
+                    key: "play",
+                    value: true
+                };
+                if (this.notifyPeers) {
+                    //Notify peers
+                    _Utilities.Utilities.log("Video played", "Sending socket message");
+                    _Utilities.Utilities.log(socketPayload);
+                    _Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
+                }
+                //Remove the notification lock, if present
+                this.notifyPeers = true;
+            }.bind(this));
+            //Video seeke happened event handler
+            this.player.on("seeked", function (e) {
+                this.videoSeeking = false;
+                var seekedTo = this.player.currentTime();
+                if (seekedTo == this.lastSeekValue) {
+                    return;
+                }
+                _Utilities.Utilities.log("Video seeked");
+                var socketPayload = {
+                    roomId: _Utilities.Utilities.roomId,
+                    name: _Utilities.Utilities.session_identifier,
+                    key: "seek_value",
+                    value: {
+                        time: seekedTo,
+                        play: !this.player.paused()
+                    }
+                };
+                this.lastSeekValue = seekedTo;
+                if (this.notifyPeers) {
+                    //Notify peers
+                    _Utilities.Utilities.log("Sending seeked singal message");
+                    _Utilities.Utilities.log(socketPayload);
+                    _Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
+                }
+                //Remove the notification lock, if present
+                this.notifyPeers = true;
+            }.bind(this));
+        }
+    }]);
+
+    return VideoPlayer;
 }();
 
 /***/ }),
@@ -1084,30 +1047,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * Utility functions and global variables for the project
  */
-
 var Utilities = exports.Utilities = function () {
     function Utilities() {
         _classCallCheck(this, Utilities);
 
         this.logging = false;
     }
-
     /**
      * Simple method to log debug messages with a predefined tag 
-        */
+     */
 
 
     _createClass(Utilities, null, [{
         key: "log",
         value: function log() {
-
             if (!this.logging) {
                 return;
             } //Disabled when not in devmode
-
             console.log("groupwat.ch log: ", arguments);
         }
-
         /**
          * Notifies user about an error that occured
          * @return {[type]} [description]
@@ -1118,7 +1076,6 @@ var Utilities = exports.Utilities = function () {
         value: function notifyError(message) {
             console.error(message + ", See https://groupwat.ch/");
         }
-
         // Taken from http://stackoverflow.com/a/105074/515584
         // Strictly speaking, it's not a real UUID, but it gets the job done here
 
@@ -1128,7 +1085,6 @@ var Utilities = exports.Utilities = function () {
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
             }
-
             return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
         }
     }, {
@@ -1272,7 +1228,7 @@ module.exports = $;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 exports.Socket = undefined;
 
@@ -1293,79 +1249,82 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * A controller for the WebSocket events and communications for the video player 
  * @author Anand Singh <@hack4mer> https://anand.today
  */
-
 var Socket = exports.Socket = function Socket(socket_server) {
+    this.wsUri = socket_server;
+    this.websocket = new WebSocket(this.wsUri);
+    this.websocket.onopen = function () {
+        this.socketConnected();
+        _Utilities.Utilities.onSocketConnected.bind(this);
+    }.bind(this);
 
-  this.wsUri = socket_server;
-  this.websocket = new WebSocket(this.wsUri);
+    this.websocket.onmessage = this.onMessage;
+    this.websocket.onerror = _Utilities.Utilities.onSocketError.bind(this);
+    this.websocket.onclose = _Utilities.Utilities.onSocketError.bind(this);
 
-  this.websocket.onopen = _Utilities.Utilities.onSocketConnected.bind(this);
-  this.websocket.onmessage = this.onMessage;
-  this.websocket.onerror = _Utilities.Utilities.onSocketError.bind(this);
-  this.websocket.onclose = _Utilities.Utilities.onSocketError.bind(this);
-
-  this.notificationAudio = new Audio('https://daf0mtu6jztqj.cloudfront.net/wp-content/uploads/20181001182143/to-the-point.mp3');
+    this.notificationAudio = new Audio('https://daf0mtu6jztqj.cloudfront.net/wp-content/uploads/20181001182143/to-the-point.mp3');
 };
 
 Socket.prototype.playNotificationSound = function () {
-  this.notificationAudio.play();
+    this.notificationAudio.play();
+};
+
+Socket.prototype.socketConnected = function () {
+
+    _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.SOCKET_CONNECTED));
+
+    var socketPayload = {
+        key: "connection",
+        value: _Utilities.Utilities.config.peerInfo
+    };
+    _Utilities.Utilities.websocket.send(JSON.stringify(socketPayload));
 };
 
 Socket.prototype.onMessage = function (ev) {
+    var response = JSON.parse(ev.data); //Server sends Json string
+    if (response.key == "chat") {
+        this.gotChat(response);
+    } else if (response.key == "connection") {
 
-  var response = JSON.parse(ev.data); //Server sends Json string
+        _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.PEER_JOINED, { detail: response.value }));
+    } else {
+        if (!_Utilities.Utilities.video) {
+            //Video has not been initialized yet       
+            return;
+        }
+        //Do not notify others about this player event since it was triggered by someone else
+        _Utilities.Utilities.video.notifyPeers = false;
+        _Utilities.Utilities.log("Socket message received:", _Utilities.Utilities.video.notifyPeers);
+        _Utilities.Utilities.log(response);
+        if (response.key == "seek_value") {
+            _Utilities.Utilities.player.currentTime(response.value.time); //Seek the video
+            if (response.value.play) {
+                _Utilities.Utilities.player.play(); //Play if the peers video is playing
+            }
+        } else if (response.key == "pause" && !_Utilities.Utilities.player.paused()) {
+            //Pause the video as requested by the peer
+            _Utilities.Utilities.player.pause();
+        } else if (response.key == "play" && _Utilities.Utilities.player.paused()) {
+            //Play the video as requested by the peer
+            _Utilities.Utilities.player.play();
+        } else {
+            //Remove the notification lock
+            _Utilities.Utilities.video.notifyPeers = true;
+        }
+    }
+};
 
-  if (response.key == "chat") {
-
+Socket.prototype.gotChat = function (response) {
     _Utilities.Utilities.log(response);
-
     var chatMsgP = document.createElement("p");
     var chatMsg = document.createElement("span");
     chatMsg.innerHTML = response.value;
     chatMsg.style.color = "red";
     chatMsg.style['text-align'] = "left";
-
     chatMsgP.appendChild(chatMsg);
-
     var chatHolder = document.getElementsByClassName(_Utilities.Utilities.config.chatBoxPaperClass)[0];
     chatHolder.appendChild(chatMsgP);
     chatHolder.scrollTop = chatHolder.scrollHeight;
-
     this.playNotificationSound();
-    return;
-  }
-
-  if (!_Utilities.Utilities.video) {
-    return;
-  } //Video has not been initialized yet
-
-
-  //Do not notify others about this player event since it was triggered by someone else
-  _Utilities.Utilities.video.notifyPeers = false;
-
-  _Utilities.Utilities.log("Socket message received:", _Utilities.Utilities.video.notifyPeers);
-  _Utilities.Utilities.log(response);
-
-  if (response.key == "seek_value") {
-
-    _Utilities.Utilities.player.currentTime(response.value.time); //Seek the video
-
-    if (response.value.play) {
-      _Utilities.Utilities.player.play(); //Play if the peers video is playing
-    }
-  } else if (response.key == "pause" && !_Utilities.Utilities.player.paused()) {
-
-    //Pause the video as requested by the peer
-    _Utilities.Utilities.player.pause();
-  } else if (response.key == "play" && _Utilities.Utilities.player.paused()) {
-
-    //Play the video as requested by the peer
-    _Utilities.Utilities.player.play();
-  } else {
-
-    //Remove the notification lock
-    _Utilities.Utilities.video.notifyPeers = true;
-  }
 };
 
 /**
@@ -1565,13 +1524,32 @@ var WebRTC = exports.WebRTC = function () {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var Events = exports.Events = {
+    SRC_SELECTED: 'srcSelected',
+    VIDEO_PLAYED: 'videoPlayed',
+    SOCKET_CONNECTED: 'socketConnected',
+    PEER_JOINED: 'peerJoined',
+    CHAT_RECEIVED: 'chatReceived',
+    PEER_SRC_SELECTED: 'peerSrcSelected'
+};
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 9 */,
-/* 10 */
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
