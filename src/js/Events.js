@@ -1,8 +1,9 @@
 export var Events = {
     SRC_SELECTED: 'srcSelected',
     VIDEO_PLAYED: 'videoPlayed',
-    SOCKET_CONNECTED:'socketConnected',
+    FIRST_VIDEO_PLAY: 'firstVieoPlay',
+    SOCKET_CONNECTED:'socketConnected',    
     PEER_JOINED: 'peerJoined',
-    CHAT_RECEIVED: 'chatReceived',
-    PEER_SRC_SELECTED: 'peerSrcSelected'
+    ENTER_FULL_SCREEN:'enterFullScreen',
+    EXIT_FULL_SCREEN:'exitFullScreen'
 };

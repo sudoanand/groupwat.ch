@@ -18,8 +18,13 @@ export class VideoPlayer {
             controlBar: {
                 fullscreenToggle: false,
                 allowFullscreen: false
-            }
+            }            
         };
+
+        options = Object.assign( {}, options, Utilities.config.playerOptions);
+         
+
+
         this.fullscreenmode = false;
         this.lastSeekValue = 0;
         this.videoSeeking = 0;
@@ -86,6 +91,7 @@ export class VideoPlayer {
         }
         this.switchedOffFullscreen();
     }
+
     enterFullScreenMode() {
         //Enter fullscreen
         if (this.containerEle.requestFullscreen) {
@@ -99,6 +105,7 @@ export class VideoPlayer {
             this.switchedOnFullscreen();
         }
     }
+
     hideLocalFileSelector() {
         document.getElementsByClassName("GWatch_localFileSeletor")[0].style.display = "none";
     }
@@ -121,6 +128,8 @@ export class VideoPlayer {
             camContainer.style.width = "20%";
             camContainer.classList.add("disableResizer");
         }
+
+        this.containerEle.dispatchEvent(new CustomEvent(Utilities.events.EXIT_FULL_SCREEN));        
     }
     /**
      * Performs post-fullscreenmode tasks
@@ -138,6 +147,8 @@ export class VideoPlayer {
             camContainer.style.width = "20%";
             camContainer.classList.remove("disableResizer");
         }
+
+        this.containerEle.dispatchEvent(new CustomEvent(Utilities.events.ENTER_FULL_SCREEN));
     }
     /**
      * Adds new button to the player
@@ -260,6 +271,9 @@ export class VideoPlayer {
             this.notifyPeers = true;
         }.bind(this));
         //Video play event handler
+        this.player.one('play',function(){            
+            Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.FIRST_VIDEO_PLAY));            
+        })
         this.player.on('play', function() {
             if (this.videoSeeking) {
                 return;

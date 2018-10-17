@@ -32,16 +32,21 @@ class GWatch{
             localSource : options.localSource || false,
             disableChat : options.disableChat || false,
             disableVideo : options.disableVideo || false,
+
+            //New options
             peerInfo: options.peerInfo || false,
             videoStartBtn: options.videoStartBtn===false ? false:true,
+            playerOptions: options.playerOptions || {},
+            
             onSocketConnected : options.onSocketConnected || function(){ console.log("socket connected");},
             onSocketError : options.onSocketError || function(){ console.error("socket connection failed"); },
 
             //hardcoded configurations
             mainPlayerId : "GWatch_mainPlayer",
-            mainPlayerSrcId : "GWatch_mainPlayerSrc",
+            mainVideoPlayerSrcId : "GWatch_mainPlayerSrc",
             containerClass : "GWatch_container",
             chatBoxPaperClass : "GWatch_chatBoxPaper",
+            videoStartBtnClass : "GWatch_startVideo",
         };
 
         this.events = Events;
@@ -196,6 +201,7 @@ class GWatch{
         this.videoCallPanelStartBtn = document.createElement("button");
         this.videoCallPanelStartBtn.onclick = function(){ this.webRTC.startVideoCall(true) }.bind(this);
         this.videoCallPanelStartBtn.innerHTML = "Start Video";
+        this.videoCallPanelStartBtn.classList.add(this.config.videoStartBtnClass);
 
 
         //Container for local and remote video tags
@@ -462,9 +468,6 @@ class GWatch{
      */
     onSrcSelected(e){
 
-        //Dispatch the event
-        this.container.dispatchEvent(new CustomEvent(Events.SRC_SELECTED,e));
-
         var 
             file    = e.target.files[0],
             fileUrl = window.URL.createObjectURL(file);
@@ -479,18 +482,28 @@ class GWatch{
     * Changes video source and configures the player to use it
     * @param  {string} newSrc the new video source to be applied
     */
-    changePlayerSource(newSrc){
+    changePlayerSource(newSrc,type){
+
+        if(!type){ type = "video/mp4"; }
+
+        //Dispatch the event
+        this.container.dispatchEvent(new CustomEvent(Events.SRC_SELECTED,{detail:{src:newSrc,type:type}}));
+
 
         Utilities.log("Changing player's source");
 
         //Change src element
         this.container.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src",newSrc);
+        this.container.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("type",type);
 
         if(typeof Utilities.player=="undefined"){
 
             //Initialize video player
             Utilities.video = new VideoPlayer();
             Utilities.player = Utilities.video.player;
+
+            //Expose the player 
+            this.player = Utilities.player; 
         }else{
 
             //Video player already initialized
