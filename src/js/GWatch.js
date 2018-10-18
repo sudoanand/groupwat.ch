@@ -79,9 +79,6 @@ class GWatch{
         //Generate UUID
         Utilities.uuid = this.uuid;
 
-        //Setup UUID
-        this.setUpRoomId();
-
         //Set utility options
         Utilities.config                = this.config;                     // If the logs should appera in the console
         Utilities.container             = this.container;                     // If the logs should appera in the console
@@ -128,22 +125,6 @@ class GWatch{
         if(this.config.localSource){
             this.initializeLocalFileSelector();
         }
-    }
-
-    /**
-     * Appends UUID in the URL and creates shareable url
-     * Decides room id
-     */
-    setUpRoomId(){
-        if(window.location.hash.length > 0){
-            this.roomId = window.location.hash.substr(1);
-        }else{
-            this.roomId = this.uuid;
-        }
-
-        Utilities.roomId = this.roomId;
-        Utilities.setCookie("roomId",this.roomId,1);
-        //window.location.hash = this.roomId;
     }
 
 
@@ -367,7 +348,7 @@ class GWatch{
 
         //Send chat
         var socketPayload = {
-            roomId : Utilities.roomId,
+            peerInfo : Utilities.config.peerInfo,
             name: Utilities.session_identifier,
             key: "chat",
             value : message

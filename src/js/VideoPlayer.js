@@ -256,7 +256,7 @@ export class VideoPlayer {
         //Video pause event handler
         this.player.on('pause', function(e) {
             var socketPayload = {
-                roomId: Utilities.roomId,
+                peerInfo : Utilities.config.peerInfo,
                 name: Utilities.session_identifier,
                 key: "pause",
                 value: true
@@ -280,7 +280,7 @@ export class VideoPlayer {
             }
             Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.VIDEO_PLAYED));
             var socketPayload = {
-                roomId: Utilities.roomId,
+                peerInfo : Utilities.config.peerInfo,
                 name: Utilities.session_identifier,
                 key: "play",
                 value: true
@@ -303,7 +303,7 @@ export class VideoPlayer {
             }
             Utilities.log("Video seeked");
             var socketPayload = {
-                roomId: Utilities.roomId,
+                peerInfo : Utilities.config.peerInfo,
                 name: Utilities.session_identifier,
                 key: "seek_value",
                 value: {

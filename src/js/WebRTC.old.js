@@ -78,8 +78,8 @@ export class WebRTC{
 	}
 
 	gotIceCandidate(event) {
-	  if(event.candidate != null) {            
-	    this.serverConnection.send(JSON.stringify({peerInfo : Utilities.config.peerInfo,'ice': event.candidate, 'uuid': this.uuid}));
+	  if(event.candidate != null) {
+	    this.serverConnection.send(JSON.stringify({'roomId': Utilities.roomId,'ice': event.candidate, 'uuid': this.uuid}));
 	  }
 	}
 
@@ -87,7 +87,7 @@ export class WebRTC{
 	  Utilities.log('got description');
 
 	  this.peerConnection.setLocalDescription(description).then(function() {
-	    this.serverConnection.send(JSON.stringify({peerInfo : Utilities.config.peerInfo,'sdp': this.peerConnection.localDescription, 'uuid': this.uuid}));
+	    this.serverConnection.send(JSON.stringify({'roomId': Utilities.roomId,'sdp': this.peerConnection.localDescription, 'uuid': this.uuid}));
 	  }.bind(this)).catch(this.errorHandler);
 	}
 
