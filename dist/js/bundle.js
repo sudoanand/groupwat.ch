@@ -144,8 +144,12 @@ var GWatch = function () {
             localSource: options.localSource || false,
             disableChat: options.disableChat || false,
             disableVideo: options.disableVideo || false,
+
+            //New options
             peerInfo: options.peerInfo || false,
             videoStartBtn: options.videoStartBtn === false ? false : true,
+            playerOptions: options.playerOptions || {},
+
             onSocketConnected: options.onSocketConnected || function () {
                 console.log("socket connected");
             },
@@ -155,9 +159,10 @@ var GWatch = function () {
 
             //hardcoded configurations
             mainPlayerId: "GWatch_mainPlayer",
-            mainPlayerSrcId: "GWatch_mainPlayerSrc",
+            mainVideoPlayerSrcId: "GWatch_mainPlayerSrc",
             containerClass: "GWatch_container",
-            chatBoxPaperClass: "GWatch_chatBoxPaper"
+            chatBoxPaperClass: "GWatch_chatBoxPaper",
+            videoStartBtnClass: "GWatch_startVideo"
         };
 
         this.events = _Events.Events;
@@ -316,6 +321,7 @@ var GWatch = function () {
                 this.webRTC.startVideoCall(true);
             }.bind(this);
             this.videoCallPanelStartBtn.innerHTML = "Start Video";
+            this.videoCallPanelStartBtn.classList.add(this.config.videoStartBtnClass);
 
             //Container for local and remote video tags
             this.videoCallPanelVideos = document.createElement("div");
@@ -580,9 +586,6 @@ var GWatch = function () {
         key: 'onSrcSelected',
         value: function onSrcSelected(e) {
 
-            //Dispatch the event
-            this.container.dispatchEvent(new CustomEvent(_Events.Events.SRC_SELECTED, e));
-
             var file = e.target.files[0],
                 fileUrl = window.URL.createObjectURL(file);
 
@@ -599,18 +602,29 @@ var GWatch = function () {
 
     }, {
         key: 'changePlayerSource',
-        value: function changePlayerSource(newSrc) {
+        value: function changePlayerSource(newSrc, type) {
+
+            if (!type) {
+                type = "video/mp4";
+            }
+
+            //Dispatch the event
+            this.container.dispatchEvent(new CustomEvent(_Events.Events.SRC_SELECTED, { detail: { src: newSrc, type: type } }));
 
             _Utilities.Utilities.log("Changing player's source");
 
             //Change src element
             this.container.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("src", newSrc);
+            this.container.getElementsByClassName(this.config.mainVideoPlayerSrcId)[0].setAttribute("type", type);
 
             if (typeof _Utilities.Utilities.player == "undefined") {
 
                 //Initialize video player
                 _Utilities.Utilities.video = new _VideoPlayer.VideoPlayer();
                 _Utilities.Utilities.player = _Utilities.Utilities.video.player;
+
+                //Expose the player 
+                this.player = _Utilities.Utilities.player;
             } else {
 
                 //Video player already initialized
@@ -687,6 +701,9 @@ var VideoPlayer = exports.VideoPlayer = function () {
                 allowFullscreen: false
             }
         };
+
+        options = Object.assign({}, options, _Utilities.Utilities.config.playerOptions);
+
         this.fullscreenmode = false;
         this.lastSeekValue = 0;
         this.videoSeeking = 0;
@@ -811,6 +828,8 @@ var VideoPlayer = exports.VideoPlayer = function () {
                 camContainer.style.width = "20%";
                 camContainer.classList.add("disableResizer");
             }
+
+            this.containerEle.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.EXIT_FULL_SCREEN));
         }
         /**
          * Performs post-fullscreenmode tasks
@@ -831,6 +850,8 @@ var VideoPlayer = exports.VideoPlayer = function () {
                 camContainer.style.width = "20%";
                 camContainer.classList.remove("disableResizer");
             }
+
+            this.containerEle.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.ENTER_FULL_SCREEN));
         }
         /**
          * Adds new button to the player
@@ -970,6 +991,9 @@ var VideoPlayer = exports.VideoPlayer = function () {
                 this.notifyPeers = true;
             }.bind(this));
             //Video play event handler
+            this.player.one('play', function () {
+                _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.FIRST_VIDEO_PLAY));
+            });
             this.player.on('play', function () {
                 if (this.videoSeeking) {
                     return;
@@ -1535,10 +1559,11 @@ Object.defineProperty(exports, "__esModule", {
 var Events = exports.Events = {
     SRC_SELECTED: 'srcSelected',
     VIDEO_PLAYED: 'videoPlayed',
+    FIRST_VIDEO_PLAY: 'firstVieoPlay',
     SOCKET_CONNECTED: 'socketConnected',
     PEER_JOINED: 'peerJoined',
-    CHAT_RECEIVED: 'chatReceived',
-    PEER_SRC_SELECTED: 'peerSrcSelected'
+    ENTER_FULL_SCREEN: 'enterFullScreen',
+    EXIT_FULL_SCREEN: 'exitFullScreen'
 };
 
 /***/ }),
