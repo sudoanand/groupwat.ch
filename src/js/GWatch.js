@@ -51,6 +51,7 @@ class GWatch{
 
         this.events = Events;
 
+        //Option validations
         if(!this.config.container){
             Utilities.notifyError("GWatch: Please specify the container option.");
             return;
@@ -94,9 +95,6 @@ class GWatch{
         //Initialize videocallui
         if(this.config.videoCall){
 
-            //Place holder for remote vidoe stream holders
-            this.videoCallPanelRemoteStream = [];
-
             //Insert required elements in the dom
             this.initializeVideoCallUI();
 
@@ -130,7 +128,6 @@ class GWatch{
 
     /**
      * Creates required dom elements and appends in it
-     * @return {[type]} [description]
      */
     initializeUIElements(){
         //Add the container class
@@ -180,7 +177,7 @@ class GWatch{
 
         //Create video broadcast button
         this.videoCallPanelStartBtn = document.createElement("button");
-        this.videoCallPanelStartBtn.onclick = function(){ this.webRTC.startVideoCall(true) }.bind(this);
+        this.videoCallPanelStartBtn.onclick = function(){ this.webRTC.requetVideo() }.bind(this);
         this.videoCallPanelStartBtn.innerHTML = "Start Video";
         this.videoCallPanelStartBtn.classList.add(this.config.videoStartBtnClass);
 
@@ -191,19 +188,11 @@ class GWatch{
         
 
         //Create video tag for localstream
-        this.videoCallPanelLocalStream = this.createVideoStreamHolder({
+        this.videoCallPanelLocalStream = Utilities.createVideoStreamHolder({
             id : "localVideo",
             autoplay : "",
         });
         this.videoCallPanelLocalStream.muted = "muted";
-
-        //Create video tag for first remote stream
-        this.videoCallPanelRemoteStream[0] = this.createVideoStreamHolder({
-            id : "remoteVideo",
-            autoplay : ""
-        });
-
-        //this.videoCallPanelRemoteStream[0].style.display = 'none';
 
 
         //Add all of the above to panel container
@@ -217,7 +206,6 @@ class GWatch{
 
         if(!Utilities.config.disableVideo){
 
-            this.videoCallPanelVideos.appendChild(this.videoCallPanelRemoteStream[0]);
             this.videoCallPanelVideos.appendChild(this.videoCallPanelLocalStream);
             this.videoCallPanel.appendChild(this.videoCallPanelVideos);
 
@@ -240,7 +228,7 @@ class GWatch{
 
         //only for development purpose, should be removed
         for(var i=0; i < 10; i++){
-            this.videoCallPanelLocalStream_x = this.createVideoStreamHolder({
+            this.videoCallPanelLocalStream_x = Utilities.createVideoStreamHolder({
                 id : "localVideo"+Math.random()*10,
                 autoplay : "",
             });            
@@ -302,20 +290,6 @@ class GWatch{
         document.getElementById("GWatch_playerContainer").appendChild(this.localFileSelector);
     }
 
-
-    createVideoStreamHolder(attrs){
-
-        var videoHolder = document.createElement("video");
-
-        videoHolder.classList.add("mirrored_video");
-
-        for(var key in attrs){
-            videoHolder.setAttribute(key,attrs[key]);
-        }
-
-
-        return videoHolder;
-    }
 
     insertChat(message,styles){
 
@@ -502,6 +476,7 @@ class GWatch{
     */
     generateConnectionId(){
         var date = new Date();
+        return window.location.search;
         return btoa(unescape(encodeURIComponent(date.getTime()+Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)))).slice(0,-2);
     }
 

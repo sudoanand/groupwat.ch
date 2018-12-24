@@ -192,9 +192,6 @@ var GWatch = function () {
         //Generate UUID
         _Utilities.Utilities.uuid = this.uuid;
 
-        //Setup UUID
-        this.setUpRoomId();
-
         //Set utility options
         _Utilities.Utilities.config = this.config; // If the logs should appera in the console
         _Utilities.Utilities.container = this.container; // If the logs should appera in the console
@@ -242,31 +239,12 @@ var GWatch = function () {
     }
 
     /**
-     * Appends UUID in the URL and creates shareable url
-     * Decides room id
+     * Creates required dom elements and appends in it
+     * @return {[type]} [description]
      */
 
 
     _createClass(GWatch, [{
-        key: 'setUpRoomId',
-        value: function setUpRoomId() {
-            if (window.location.hash.length > 0) {
-                this.roomId = window.location.hash.substr(1);
-            } else {
-                this.roomId = this.uuid;
-            }
-
-            _Utilities.Utilities.roomId = this.roomId;
-            _Utilities.Utilities.setCookie("roomId", this.roomId, 1);
-            //window.location.hash = this.roomId;
-        }
-
-        /**
-         * Creates required dom elements and appends in it
-         * @return {[type]} [description]
-         */
-
-    }, {
         key: 'initializeUIElements',
         value: function initializeUIElements() {
             //Add the container class
@@ -486,7 +464,7 @@ var GWatch = function () {
 
             //Send chat
             var socketPayload = {
-                roomId: _Utilities.Utilities.roomId,
+                peerInfo: _Utilities.Utilities.config.peerInfo,
                 name: _Utilities.Utilities.session_identifier,
                 key: "chat",
                 value: message
@@ -976,7 +954,7 @@ var VideoPlayer = exports.VideoPlayer = function () {
             //Video pause event handler
             this.player.on('pause', function (e) {
                 var socketPayload = {
-                    roomId: _Utilities.Utilities.roomId,
+                    peerInfo: _Utilities.Utilities.config.peerInfo,
                     name: _Utilities.Utilities.session_identifier,
                     key: "pause",
                     value: true
@@ -1000,7 +978,7 @@ var VideoPlayer = exports.VideoPlayer = function () {
                 }
                 _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.VIDEO_PLAYED));
                 var socketPayload = {
-                    roomId: _Utilities.Utilities.roomId,
+                    peerInfo: _Utilities.Utilities.config.peerInfo,
                     name: _Utilities.Utilities.session_identifier,
                     key: "play",
                     value: true
@@ -1023,7 +1001,7 @@ var VideoPlayer = exports.VideoPlayer = function () {
                 }
                 _Utilities.Utilities.log("Video seeked");
                 var socketPayload = {
-                    roomId: _Utilities.Utilities.roomId,
+                    peerInfo: _Utilities.Utilities.config.peerInfo,
                     name: _Utilities.Utilities.session_identifier,
                     key: "seek_value",
                     value: {
@@ -1454,7 +1432,7 @@ var WebRTC = exports.WebRTC = function () {
 		key: 'gotIceCandidate',
 		value: function gotIceCandidate(event) {
 			if (event.candidate != null) {
-				this.serverConnection.send(JSON.stringify({ 'roomId': _Utilities.Utilities.roomId, 'ice': event.candidate, 'uuid': this.uuid }));
+				this.serverConnection.send(JSON.stringify({ peerInfo: _Utilities.Utilities.config.peerInfo, 'ice': event.candidate, 'uuid': this.uuid }));
 			}
 		}
 	}, {
@@ -1463,7 +1441,7 @@ var WebRTC = exports.WebRTC = function () {
 			_Utilities.Utilities.log('got description');
 
 			this.peerConnection.setLocalDescription(description).then(function () {
-				this.serverConnection.send(JSON.stringify({ 'roomId': _Utilities.Utilities.roomId, 'sdp': this.peerConnection.localDescription, 'uuid': this.uuid }));
+				this.serverConnection.send(JSON.stringify({ peerInfo: _Utilities.Utilities.config.peerInfo, 'sdp': this.peerConnection.localDescription, 'uuid': this.uuid }));
 			}.bind(this)).catch(this.errorHandler);
 		}
 	}, {

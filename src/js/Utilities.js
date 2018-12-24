@@ -48,5 +48,19 @@ export class Utilities {
             }
         }
         return "";
+    }    
+    static createVideoStreamHolder(attrs){
+
+        var videoHolder = document.createElement("video");
+
+        videoHolder.classList.add("mirrored_video");
+
+        for(var key in attrs){
+            videoHolder.setAttribute(key,attrs[key]);
+        }
+
+
+        return videoHolder;
     }
+
 }

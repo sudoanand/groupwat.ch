@@ -72,8 +72,9 @@
     -moz-transform:rotateY(180deg); /* Firefox */
     width: 100%;
 }
-#remoteVideo{
+video.remoteVideo{
     height: 0px;
+    width: 100%;
 }
 .disableResizer #GWatch_panResizer {
     display: none;

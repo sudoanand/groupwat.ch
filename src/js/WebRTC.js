@@ -2,148 +2,214 @@
  * WebRTC.js
  * Controller class for the WebRTC audio/video/file transmission
  */
-import {Utilities} from './Utilities'
+ import {Utilities} from './Utilities'
 
-export class WebRTC{
+ export class WebRTC{
 
-	constructor(){
-	
-		this.peerConnectionConfig = {
-		  'iceServers': [
-		    {'urls': 'stun:stun.stunprotocol.org:3478'},
-		    {'urls': 'stun:stun.l.google.com:19302'},
-		  ]
-		};
+ 	constructor(){
 
-		this.uuid = Utilities.uuid;
+ 		this.peerConnectionConfig = {
+ 			'iceServers': [
+ 			{'urls': 'stun:stun.stunprotocol.org:3478'},
+ 			{'urls': 'stun:stun.l.google.com:19302'},
+ 			]
+ 		};
 
-		this.localVideo = document.getElementById('localVideo');
-		this.remoteVideo = document.getElementById('remoteVideo');
+ 		this.uuid = Utilities.uuid;
 
-		this.serverConnection = Utilities.websocket;
-		this.serverConnection.onmessage = this.gotMessageFromServer.bind(this);
+ 		this.localVideo = document.getElementById('localVideo');
+ 		this.remoteVideo = document.getElementById('remoteVideo');
 
-		this.constraints = {
-		video: true,
-		audio: true
-		};
+ 		this.serverConnection = Utilities.websocket;
+ 		this.serverConnection.onmessage = this.gotMessageFromServer.bind(this);
 
-		if(navigator.mediaDevices.getUserMedia) {
-		navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
-		} else {
-		alert('Your browser does not support getUserMedia API');
-		}
-	}
+ 		this.constraints = {
+ 			video: true,
+ 			audio: true
+ 		};
 
-	getUserMediaSuccess(stream) {
-	  this.localStream = stream;
-	  this.localVideo.srcObject = stream;
-	}
+ 		if(navigator.mediaDevices.getUserMedia) {
+ 			navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
+ 		} else {
+ 			alert('Your browser does not support getUserMedia API');
+ 		}
+ 	}
 
-	startVideoCall(isCaller) {
-	  this.peerConnection = new RTCPeerConnection(this.peerConnectionConfig);
-	  this.peerConnection.onicecandidate = this.gotIceCandidate.bind(this);
-	  this.peerConnection.ontrack = this.gotRemoteStream.bind(this);
-	  this.peerConnection.addStream(this.localStream);
+ 	getUserMediaSuccess(stream) {
+ 		this.localStream = stream;
+ 		this.localVideo.srcObject = stream;
+ 	}
 
-	  if(isCaller) {
-	    this.peerConnection.createOffer().then(this.createdDescription.bind(this)).catch(this.errorHandler);
-	  }
-	}
+ 	requetVideo(){
+		this.serverConnection.send(JSON.stringify({
+				peerInfo : Utilities.config.peerInfo,
+				'from' : Utilities.session_identifier,
+				'type' : 'callRequest'
+			}
+		));
+ 	}
 
-	gotMessageFromServer(message) {
+ 	startVideoCall(isCaller,requestSignal) {
+
+ 		this.peerConnection = new RTCPeerConnection(this.peerConnectionConfig);
+ 		this.peerConnection.onicecandidate = (event) => {
+ 			if(event.candidate != null) {    
+
+				this.serverConnection.send(JSON.stringify({
+					peerInfo : Utilities.config.peerInfo,
+					'from':Utilities.session_identifier,
+					'to': requestSignal.from,
+					'ice': event.candidate, 
+					'uuid': this.uuid
+				}));
+			}
+ 		}
+
+ 		this.peerConnection.ontrack = this.gotRemoteStream.bind(this);
+ 		this.peerConnection.addStream(this.localStream);
+
+ 		if(isCaller) {
+
+ 			this.peerConnection.createOffer().then((description) =>{
+
+ 				Utilities.log('got local description');
+				this.peerConnection.setLocalDescription(description).then(function() {
+
+	 				//Send a call offer
+					this.serverConnection.send(JSON.stringify({
+						peerInfo : Utilities.config.peerInfo,
+						'from': Utilities.session_identifier,
+						'to' : requestSignal.from,
+						'sdp': this.peerConnection.localDescription, 
+						'uuid': this.uuid
+					}));
+				}.bind(this)).catch(this.errorHandler);
+
+ 			}).catch(this.errorHandler);
+ 		}
+ 	}
+
+ 	gotMessageFromServer(message) {
 
 		//Call the super method
 		Utilities.mSocket.onMessage(message);
-
-
 		var signal = JSON.parse(message.data);
 
-		if(!this.peerConnection) this.startVideoCall(false);
+		if(signal.type=="callRequest"){
 
+			console.log("Got a call application from"+signal.from,signal);
 
-		if(signal.sdp) {
+			this.startVideoCall(true,signal);
+		}
+		else if(signal.sdp && signal.to == Utilities.session_identifier) {
+
+			if(!this.peerConnection) this.startVideoCall(false,signal);
+
 			this.peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
 			  // Only create answers in response to offers
 			  if(signal.sdp.type == 'offer') {
-			    this.peerConnection.createAnswer().then(this.createdDescription.bind(this)).catch(this.errorHandler);
+
+			  	console.log("Got an offer from "+signal.from,signal)
+
+			  	this.peerConnection.createAnswer().then((description) => {
+
+			  		//The remove description  		
+					this.peerConnection.setLocalDescription(description).then(function() {
+						this.serverConnection.send(JSON.stringify({
+							peerInfo : Utilities.config.peerInfo,
+							'from' : Utilities.session_identifier,
+							'to' : signal.from,
+							'sdp': this.peerConnection.localDescription, 
+							'uuid': this.uuid
+						}));						
+					}.bind(this)).catch(this.errorHandler);
+
+			  	}).catch(this.errorHandler);
+			  }else{
+		
+			  	console.log("Got an asnwer from "+signal.from);
+		
 			  }
 			}.bind(this)).catch(this.errorHandler);
-		} else if(signal.ice) {
-			Utilities.log(message);
-			Utilities.log("Adding : ",signal.ice.candidate);
+		} else if(signal.ice && signal.to == Utilities.session_identifier) {
+		
+			//console.log("Adding ice.candidate : ",signal);
 
 			this.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 		}
 	}
 
-	gotIceCandidate(event) {
-	  if(event.candidate != null) {            
-	    this.serverConnection.send(JSON.stringify({peerInfo : Utilities.config.peerInfo,'ice': event.candidate, 'uuid': this.uuid}));
-	  }
-	}
-
-	createdDescription(description) {
-	  Utilities.log('got description');
-
-	  this.peerConnection.setLocalDescription(description).then(function() {
-	    this.serverConnection.send(JSON.stringify({peerInfo : Utilities.config.peerInfo,'sdp': this.peerConnection.localDescription, 'uuid': this.uuid}));
-	  }.bind(this)).catch(this.errorHandler);
-	}
 
 	gotRemoteStream(event) {
-	  Utilities.log('got remote stream');
-	  this.remoteVideo.srcObject = event.streams[0];
-	  this.remoteVideo.style.height = "auto";
+		if(event.track.kind!="video"){
+			return;
+		}
+
+		console.log("Remote video found!!");
+
+		console.log(event.streams);
+
+		//Create video tag for remote stream
+        var videoCallPanelRemoteStream = Utilities.createVideoStreamHolder({
+            class : "remoteVideo",
+            autoplay : ""
+        });
+
+		Utilities.log('got remote stream');
+		videoCallPanelRemoteStream.srcObject = event.streams[0];
+		videoCallPanelRemoteStream.style.height = "auto";
+
+        //Add the holder into the DOM
+        document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
 	}
 
 	errorHandler(error) {
-	  console.error(error);
+		console.error(error);
 	}
 
 	/**
 	 * Pause the audio and video streaming
 	 */
-	pauseVideoCall(){
-		this.pauseVideo();
-		this.pauseAudio();
-	}
+	 pauseVideoCall(){
+	 	this.pauseVideo();
+	 	this.pauseAudio();
+	 }
 
 	/**
 	 * Pause just the video 
 	 */
-	pauseVideo(){
-		this.localStream.getVideoTracks()[0].enabled = false;
-	}
+	 pauseVideo(){
+	 	this.localStream.getVideoTracks()[0].enabled = false;
+	 }
 
 	/**
 	 * Pause just the audio streaming
 	 */
-	pauseAudio(){
-		this.localStream.getAudioTracks()[0].enabled = false;
-	}
+	 pauseAudio(){
+	 	this.localStream.getAudioTracks()[0].enabled = false;
+	 }
 
 	/**
 	 * Resume audio and video streaming
 	 */
-	resumeVideoCall(){
-		this.resumeVideo();
-		this.resumeAudio();
-	}
+	 resumeVideoCall(){
+	 	this.resumeVideo();
+	 	this.resumeAudio();
+	 }
 
 	/**
 	 * Resume just the video streaming
 	 * @return {[type]} [description]
 	 */
-	resumeVideo(){
-		this.localStream.getVideoTracks()[0].enabled = true;
-	}
+	 resumeVideo(){
+	 	this.localStream.getVideoTracks()[0].enabled = true;
+	 }
 
 	/**
 	 * Resume the audio streaming
 	 */
-	resumeAudio(){
-		this.localStream.getAudioTracks()[0].enabled = true;
+	 resumeAudio(){
+	 	this.localStream.getAudioTracks()[0].enabled = true;
+	 }
 	}
-}
 
