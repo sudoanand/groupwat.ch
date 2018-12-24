@@ -28,6 +28,8 @@
  			audio: true
  		};
 
+ 		this.peerConnection = [];
+
  		if(navigator.mediaDevices.getUserMedia) {
  			navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
  		} else {
@@ -51,8 +53,10 @@
 
  	startVideoCall(isCaller,requestSignal) {
 
- 		this.peerConnection = new RTCPeerConnection(this.peerConnectionConfig);
- 		this.peerConnection.onicecandidate = (event) => {
+ 		console.log("making pc:",requestSignal.from);
+
+ 		this.peerConnection[requestSignal.from] = new RTCPeerConnection(this.peerConnectionConfig);
+ 		this.peerConnection[requestSignal.from].onicecandidate = (event) => {
  			if(event.candidate != null) {    
 
 				this.serverConnection.send(JSON.stringify({
@@ -65,22 +69,22 @@
 			}
  		}
 
- 		this.peerConnection.ontrack = this.gotRemoteStream.bind(this);
- 		this.peerConnection.addStream(this.localStream);
+ 		this.peerConnection[requestSignal.from].ontrack = this.gotRemoteStream.bind(this);
+ 		this.peerConnection[requestSignal.from].addStream(this.localStream);
 
  		if(isCaller) {
 
- 			this.peerConnection.createOffer().then((description) =>{
+ 			this.peerConnection[requestSignal.from].createOffer().then((description) =>{
 
  				Utilities.log('got local description');
-				this.peerConnection.setLocalDescription(description).then(function() {
+				this.peerConnection[requestSignal.from].setLocalDescription(description).then(function() {
 
 	 				//Send a call offer
 					this.serverConnection.send(JSON.stringify({
 						peerInfo : Utilities.config.peerInfo,
 						'from': Utilities.session_identifier,
 						'to' : requestSignal.from,
-						'sdp': this.peerConnection.localDescription, 
+						'sdp': this.peerConnection[requestSignal.from].localDescription, 
 						'uuid': this.uuid
 					}));
 				}.bind(this)).catch(this.errorHandler);
@@ -103,23 +107,23 @@
 		}
 		else if(signal.sdp && signal.to == Utilities.session_identifier) {
 
-			if(!this.peerConnection) this.startVideoCall(false,signal);
+			if(!this.peerConnection[signal.from]) this.startVideoCall(false,signal);
 
-			this.peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
+			this.peerConnection[signal.from].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
 			  // Only create answers in response to offers
 			  if(signal.sdp.type == 'offer') {
 
 			  	console.log("Got an offer from "+signal.from,signal)
 
-			  	this.peerConnection.createAnswer().then((description) => {
+			  	this.peerConnection[signal.from].createAnswer().then((description) => {
 
 			  		//The remove description  		
-					this.peerConnection.setLocalDescription(description).then(function() {
+					this.peerConnection[signal.from].setLocalDescription(description).then(function() {
 						this.serverConnection.send(JSON.stringify({
 							peerInfo : Utilities.config.peerInfo,
 							'from' : Utilities.session_identifier,
 							'to' : signal.from,
-							'sdp': this.peerConnection.localDescription, 
+							'sdp': this.peerConnection[signal.from].localDescription, 
 							'uuid': this.uuid
 						}));						
 					}.bind(this)).catch(this.errorHandler);
@@ -135,7 +139,7 @@
 		
 			//console.log("Adding ice.candidate : ",signal);
 
-			this.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
+			this.peerConnection[signal.from].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 		}
 	}
 
@@ -146,9 +150,6 @@
 		}
 
 		console.log("Remote video found!!");
-
-		console.log(event.streams);
-
 		//Create video tag for remote stream
         var videoCallPanelRemoteStream = Utilities.createVideoStreamHolder({
             class : "remoteVideo",
