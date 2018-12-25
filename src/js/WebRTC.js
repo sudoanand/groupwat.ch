@@ -29,17 +29,18 @@
  		};
 
  		this.peerConnection = [];
+ 		this.isNegotiating = [];
 
- 		if(navigator.mediaDevices.getUserMedia) {
- 			navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
- 		} else {
- 			alert('Your browser does not support getUserMedia API');
- 		}
+ 		// if(navigator.mediaDevices.getUserMedia) {
+ 		// 	navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
+ 		// } else {
+ 		// 	alert('Your browser does not support getUserMedia API');
+ 		// }
  	}
 
  	getUserMediaSuccess(stream) {
- 		this.localStream = stream;
- 		this.localVideo.srcObject = stream;
+ 		//this.localStream = stream;
+ 		//this.localVideo.srcObject = stream;
  	}
 
  	requetVideo(){
@@ -70,9 +71,21 @@
  		}
 
  		this.peerConnection[requestSignal.from].ontrack = this.gotRemoteStream.bind(this);
- 		this.peerConnection[requestSignal.from].addStream(this.localStream);
+ 		//this.peerConnection[requestSignal.from].addStream(this.localStream);
 
- 		if(isCaller) {
+ 		this.isNegotiating[requestSignal.from] = false;
+ 		this.peerConnection[requestSignal.from].onnegotiationneeded = () => {
+
+
+
+ 			if (this.isNegotiating[requestSignal.from]) {
+ 				console.log(requestSignal);
+			    console.log("SKIP nested negotiations");
+			    return;
+		    } 
+
+
+ 			this.isNegotiating[requestSignal.from] = true;
 
  			this.peerConnection[requestSignal.from].createOffer().then((description) =>{
 
@@ -88,9 +101,24 @@
 						'uuid': this.uuid
 					}));
 				}.bind(this)).catch(this.errorHandler);
-
  			}).catch(this.errorHandler);
- 		}
+		}; 	
+
+
+		this.peerConnection[requestSignal.from].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
+		  this.isNegotiating[requestSignal.from] = (this.peerConnection[requestSignal.from].signalingState != "stable");
+		}
+
+
+		if(navigator.mediaDevices.getUserMedia) {
+ 			navigator.mediaDevices.getUserMedia(this.constraints).then((stream)=>{
+ 				stream.getTracks().forEach((track) =>
+			      this.peerConnection[requestSignal.from].addTrack(track, stream));
+			    this.localVideo.srcObject = stream;
+ 			}).catch(this.errorHandler);
+ 		} else {
+ 			alert('Your browser does not support getUserMedia API');
+ 		}		    		
  	}
 
  	gotMessageFromServer(message) {
@@ -103,7 +131,13 @@
 
 			console.log("Got a call application from"+signal.from,signal);
 
-			this.startVideoCall(true,signal);
+			if(!this.peerConnection[signal.from]){
+				this.startVideoCall(true,signal);
+				console.log("Starting a call with: "+signal.from);
+			}else{
+				console.log("Not starting the call, already connected");
+			}
+
 		}
 		else if(signal.sdp && signal.to == Utilities.session_identifier) {
 
@@ -153,8 +187,10 @@
 		//Create video tag for remote stream
         var videoCallPanelRemoteStream = Utilities.createVideoStreamHolder({
             class : "remoteVideo",
-            autoplay : ""
+            autoplay : "",
         });
+
+        videoCallPanelRemoteStream.muted = true;
 
 		Utilities.log('got remote stream');
 		videoCallPanelRemoteStream.srcObject = event.streams[0];
