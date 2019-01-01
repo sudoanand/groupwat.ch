@@ -31,16 +31,15 @@
  		this.peerConnection = [];
  		this.isNegotiating = [];
 
- 		// if(navigator.mediaDevices.getUserMedia) {
- 		// 	navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
- 		// } else {
- 		// 	alert('Your browser does not support getUserMedia API');
- 		// }
+		if(navigator.mediaDevices.getUserMedia) {
+			navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
+		} else {
+			alert('Your browser does not support getUserMedia API');
+		}
  	}
 
  	getUserMediaSuccess(stream) {
- 		//this.localStream = stream;
- 		//this.localVideo.srcObject = stream;
+ 		this.localVideo.srcObject = stream;
  	}
 
  	requetVideo(){
@@ -54,7 +53,7 @@
 
  	startVideoCall(isCaller,requestSignal) {
 
- 		console.log("making pc:",requestSignal.from);
+ 		Utilities.log("making pc:",requestSignal.from);
 
  		this.peerConnection[requestSignal.from] = new RTCPeerConnection(this.peerConnectionConfig);
  		this.peerConnection[requestSignal.from].onicecandidate = (event) => {
@@ -79,8 +78,8 @@
 
 
  			if (this.isNegotiating[requestSignal.from]) {
- 				console.log(requestSignal);
-			    console.log("SKIP nested negotiations");
+ 				Utilities.log(requestSignal);
+			    Utilities.log("SKIP nested negotiations");
 			    return;
 		    } 
 
@@ -114,6 +113,7 @@
  			navigator.mediaDevices.getUserMedia(this.constraints).then((stream)=>{
  				stream.getTracks().forEach((track) =>
 			      this.peerConnection[requestSignal.from].addTrack(track, stream));
+ 				this.localStream=stream;
 			    this.localVideo.srcObject = stream;
  			}).catch(this.errorHandler);
  		} else {
@@ -129,13 +129,13 @@
 
 		if(signal.type=="callRequest"){
 
-			console.log("Got a call application from"+signal.from,signal);
+			Utilities.log("Got a call application from"+signal.from,signal);
 
 			if(!this.peerConnection[signal.from]){
 				this.startVideoCall(true,signal);
-				console.log("Starting a call with: "+signal.from);
+				Utilities.log("Starting a call with: "+signal.from);
 			}else{
-				console.log("Not starting the call, already connected");
+				Utilities.log("Not starting the call, already connected");
 			}
 
 		}
@@ -147,7 +147,7 @@
 			  // Only create answers in response to offers
 			  if(signal.sdp.type == 'offer') {
 
-			  	console.log("Got an offer from "+signal.from,signal)
+			  	Utilities.log("Got an offer from "+signal.from,signal)
 
 			  	this.peerConnection[signal.from].createAnswer().then((description) => {
 
@@ -165,13 +165,13 @@
 			  	}).catch(this.errorHandler);
 			  }else{
 		
-			  	console.log("Got an asnwer from "+signal.from);
+			  	Utilities.log("Got an asnwer from "+signal.from);
 		
 			  }
 			}.bind(this)).catch(this.errorHandler);
 		} else if(signal.ice && signal.to == Utilities.session_identifier) {
 		
-			//console.log("Adding ice.candidate : ",signal);
+			//Utilities.log("Adding ice.candidate : ",signal);
 
 			this.peerConnection[signal.from].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 		}
@@ -183,7 +183,7 @@
 			return;
 		}
 
-		console.log("Remote video found!!");
+		Utilities.log("Remote video found!!");
 		//Create video tag for remote stream
         var videoCallPanelRemoteStream = Utilities.createVideoStreamHolder({
             class : "remoteVideo",

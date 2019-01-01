@@ -33,8 +33,6 @@ Socket.prototype.playNotificationSound = function() {
 
 
 Socket.prototype.socketConnected = function() {
-
-    console.log("Socket connected");
     
     Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.SOCKET_CONNECTED));
 

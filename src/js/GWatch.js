@@ -476,7 +476,6 @@ class GWatch{
     */
     generateConnectionId(){
         var date = new Date();
-        return window.location.search.replace("?","");
         return btoa(unescape(encodeURIComponent(date.getTime()+Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)))).slice(0,-2);
     }
 
