@@ -167,6 +167,7 @@ var GWatch = function () {
 
         this.events = _Events.Events;
 
+        //Option validations
         if (!this.config.container) {
             _Utilities.Utilities.notifyError("GWatch: Please specify the container option.");
             return;
@@ -207,9 +208,6 @@ var GWatch = function () {
         //Initialize videocallui
         if (this.config.videoCall) {
 
-            //Place holder for remote vidoe stream holders
-            this.videoCallPanelRemoteStream = [];
-
             //Insert required elements in the dom
             this.initializeVideoCallUI();
 
@@ -240,7 +238,6 @@ var GWatch = function () {
 
     /**
      * Creates required dom elements and appends in it
-     * @return {[type]} [description]
      */
 
 
@@ -296,7 +293,7 @@ var GWatch = function () {
             //Create video broadcast button
             this.videoCallPanelStartBtn = document.createElement("button");
             this.videoCallPanelStartBtn.onclick = function () {
-                this.webRTC.startVideoCall(true);
+                this.webRTC.requetVideo();
             }.bind(this);
             this.videoCallPanelStartBtn.innerHTML = "Start Video";
             this.videoCallPanelStartBtn.classList.add(this.config.videoStartBtnClass);
@@ -306,20 +303,11 @@ var GWatch = function () {
             this.videoCallPanelVideos.classList.add("GWatch_camContainer_videos");
 
             //Create video tag for localstream
-            this.videoCallPanelLocalStream = this.createVideoStreamHolder({
+            this.videoCallPanelLocalStream = _Utilities.Utilities.createVideoStreamHolder({
                 id: "localVideo",
                 autoplay: ""
             });
             this.videoCallPanelLocalStream.muted = "muted";
-
-            //Create video tag for first remote stream
-            this.videoCallPanelRemoteStream[0] = this.createVideoStreamHolder({
-                id: "remoteVideo",
-                autoplay: ""
-            });
-
-            //this.videoCallPanelRemoteStream[0].style.display = 'none';
-
 
             //Add all of the above to panel container
             if (!_Utilities.Utilities.config.disableVideo && _Utilities.Utilities.config.videoStartBtn) {
@@ -332,7 +320,6 @@ var GWatch = function () {
 
             if (!_Utilities.Utilities.config.disableVideo) {
 
-                this.videoCallPanelVideos.appendChild(this.videoCallPanelRemoteStream[0]);
                 this.videoCallPanelVideos.appendChild(this.videoCallPanelLocalStream);
                 this.videoCallPanel.appendChild(this.videoCallPanelVideos);
 
@@ -353,7 +340,7 @@ var GWatch = function () {
 
             //only for development purpose, should be removed
             for (var i = 0; i < 10; i++) {
-                this.videoCallPanelLocalStream_x = this.createVideoStreamHolder({
+                this.videoCallPanelLocalStream_x = _Utilities.Utilities.createVideoStreamHolder({
                     id: "localVideo" + Math.random() * 10,
                     autoplay: ""
                 });
@@ -417,20 +404,6 @@ var GWatch = function () {
             }.bind(this);
 
             document.getElementById("GWatch_playerContainer").appendChild(this.localFileSelector);
-        }
-    }, {
-        key: 'createVideoStreamHolder',
-        value: function createVideoStreamHolder(attrs) {
-
-            var videoHolder = document.createElement("video");
-
-            videoHolder.classList.add("mirrored_video");
-
-            for (var key in attrs) {
-                videoHolder.setAttribute(key, attrs[key]);
-            }
-
-            return videoHolder;
         }
     }, {
         key: 'insertChat',
@@ -1113,6 +1086,20 @@ var Utilities = exports.Utilities = function () {
             }
             return "";
         }
+    }, {
+        key: "createVideoStreamHolder",
+        value: function createVideoStreamHolder(attrs) {
+
+            var videoHolder = document.createElement("video");
+
+            videoHolder.classList.add("mirrored_video");
+
+            for (var key in attrs) {
+                videoHolder.setAttribute(key, attrs[key]);
+            }
+
+            return videoHolder;
+        }
     }]);
 
     return Utilities;
@@ -1378,6 +1365,9 @@ var WebRTC = exports.WebRTC = function () {
 			audio: true
 		};
 
+		this.peerConnection = [];
+		this.isNegotiating = [];
+
 		if (navigator.mediaDevices.getUserMedia) {
 			navigator.mediaDevices.getUserMedia(this.constraints).then(this.getUserMediaSuccess.bind(this)).catch(this.errorHandler);
 		} else {
@@ -1388,19 +1378,84 @@ var WebRTC = exports.WebRTC = function () {
 	_createClass(WebRTC, [{
 		key: 'getUserMediaSuccess',
 		value: function getUserMediaSuccess(stream) {
-			this.localStream = stream;
 			this.localVideo.srcObject = stream;
 		}
 	}, {
+		key: 'requetVideo',
+		value: function requetVideo() {
+			this.serverConnection.send(JSON.stringify({
+				peerInfo: _Utilities.Utilities.config.peerInfo,
+				'from': _Utilities.Utilities.session_identifier,
+				'type': 'callRequest'
+			}));
+		}
+	}, {
 		key: 'startVideoCall',
-		value: function startVideoCall(isCaller) {
-			this.peerConnection = new RTCPeerConnection(this.peerConnectionConfig);
-			this.peerConnection.onicecandidate = this.gotIceCandidate.bind(this);
-			this.peerConnection.ontrack = this.gotRemoteStream.bind(this);
-			this.peerConnection.addStream(this.localStream);
+		value: function startVideoCall(isCaller, requestSignal) {
+			var _this = this;
 
-			if (isCaller) {
-				this.peerConnection.createOffer().then(this.createdDescription.bind(this)).catch(this.errorHandler);
+			_Utilities.Utilities.log("making pc:", requestSignal.from);
+
+			this.peerConnection[requestSignal.from] = new RTCPeerConnection(this.peerConnectionConfig);
+			this.peerConnection[requestSignal.from].onicecandidate = function (event) {
+				if (event.candidate != null) {
+
+					_this.serverConnection.send(JSON.stringify({
+						peerInfo: _Utilities.Utilities.config.peerInfo,
+						'from': _Utilities.Utilities.session_identifier,
+						'to': requestSignal.from,
+						'ice': event.candidate,
+						'uuid': _this.uuid
+					}));
+				}
+			};
+
+			this.peerConnection[requestSignal.from].ontrack = this.gotRemoteStream.bind(this);
+			//this.peerConnection[requestSignal.from].addStream(this.localStream);
+
+			this.isNegotiating[requestSignal.from] = false;
+			this.peerConnection[requestSignal.from].onnegotiationneeded = function () {
+
+				if (_this.isNegotiating[requestSignal.from]) {
+					_Utilities.Utilities.log(requestSignal);
+					_Utilities.Utilities.log("SKIP nested negotiations");
+					return;
+				}
+
+				_this.isNegotiating[requestSignal.from] = true;
+
+				_this.peerConnection[requestSignal.from].createOffer().then(function (description) {
+
+					_Utilities.Utilities.log('got local description');
+					_this.peerConnection[requestSignal.from].setLocalDescription(description).then(function () {
+
+						//Send a call offer
+						this.serverConnection.send(JSON.stringify({
+							peerInfo: _Utilities.Utilities.config.peerInfo,
+							'from': _Utilities.Utilities.session_identifier,
+							'to': requestSignal.from,
+							'sdp': this.peerConnection[requestSignal.from].localDescription,
+							'uuid': this.uuid
+						}));
+					}.bind(_this)).catch(_this.errorHandler);
+				}).catch(_this.errorHandler);
+			};
+
+			this.peerConnection[requestSignal.from].onsignalingstatechange = function (e) {
+				// Workaround for Chrome: skip nested negotiations
+				_this.isNegotiating[requestSignal.from] = _this.peerConnection[requestSignal.from].signalingState != "stable";
+			};
+
+			if (navigator.mediaDevices.getUserMedia) {
+				navigator.mediaDevices.getUserMedia(this.constraints).then(function (stream) {
+					stream.getTracks().forEach(function (track) {
+						return _this.peerConnection[requestSignal.from].addTrack(track, stream);
+					});
+					_this.localStream = stream;
+					_this.localVideo.srcObject = stream;
+				}).catch(this.errorHandler);
+			} else {
+				alert('Your browser does not support getUserMedia API');
 			}
 		}
 	}, {
@@ -1409,47 +1464,77 @@ var WebRTC = exports.WebRTC = function () {
 
 			//Call the super method
 			_Utilities.Utilities.mSocket.onMessage(message);
-
 			var signal = JSON.parse(message.data);
 
-			if (!this.peerConnection) this.startVideoCall(false);
+			if (signal.type == "callRequest") {
 
-			if (signal.sdp) {
-				this.peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
+				_Utilities.Utilities.log("Got a call application from" + signal.from, signal);
+
+				if (!this.peerConnection[signal.from]) {
+					this.startVideoCall(true, signal);
+					_Utilities.Utilities.log("Starting a call with: " + signal.from);
+				} else {
+					_Utilities.Utilities.log("Not starting the call, already connected");
+				}
+			} else if (signal.sdp && signal.to == _Utilities.Utilities.session_identifier) {
+
+				if (!this.peerConnection[signal.from]) this.startVideoCall(false, signal);
+
+				this.peerConnection[signal.from].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function () {
+					var _this2 = this;
+
 					// Only create answers in response to offers
 					if (signal.sdp.type == 'offer') {
-						this.peerConnection.createAnswer().then(this.createdDescription.bind(this)).catch(this.errorHandler);
+
+						_Utilities.Utilities.log("Got an offer from " + signal.from, signal);
+
+						this.peerConnection[signal.from].createAnswer().then(function (description) {
+
+							//The remove description  		
+							_this2.peerConnection[signal.from].setLocalDescription(description).then(function () {
+								this.serverConnection.send(JSON.stringify({
+									peerInfo: _Utilities.Utilities.config.peerInfo,
+									'from': _Utilities.Utilities.session_identifier,
+									'to': signal.from,
+									'sdp': this.peerConnection[signal.from].localDescription,
+									'uuid': this.uuid
+								}));
+							}.bind(_this2)).catch(_this2.errorHandler);
+						}).catch(this.errorHandler);
+					} else {
+
+						_Utilities.Utilities.log("Got an asnwer from " + signal.from);
 					}
 				}.bind(this)).catch(this.errorHandler);
-			} else if (signal.ice) {
-				_Utilities.Utilities.log(message);
-				_Utilities.Utilities.log("Adding : ", signal.ice.candidate);
+			} else if (signal.ice && signal.to == _Utilities.Utilities.session_identifier) {
 
-				this.peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
-			}
-		}
-	}, {
-		key: 'gotIceCandidate',
-		value: function gotIceCandidate(event) {
-			if (event.candidate != null) {
-				this.serverConnection.send(JSON.stringify({ peerInfo: _Utilities.Utilities.config.peerInfo, 'ice': event.candidate, 'uuid': this.uuid }));
-			}
-		}
-	}, {
-		key: 'createdDescription',
-		value: function createdDescription(description) {
-			_Utilities.Utilities.log('got description');
+				//Utilities.log("Adding ice.candidate : ",signal);
 
-			this.peerConnection.setLocalDescription(description).then(function () {
-				this.serverConnection.send(JSON.stringify({ peerInfo: _Utilities.Utilities.config.peerInfo, 'sdp': this.peerConnection.localDescription, 'uuid': this.uuid }));
-			}.bind(this)).catch(this.errorHandler);
+				this.peerConnection[signal.from].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
+			}
 		}
 	}, {
 		key: 'gotRemoteStream',
 		value: function gotRemoteStream(event) {
+			if (event.track.kind != "video") {
+				return;
+			}
+
+			_Utilities.Utilities.log("Remote video found!!");
+			//Create video tag for remote stream
+			var videoCallPanelRemoteStream = _Utilities.Utilities.createVideoStreamHolder({
+				class: "remoteVideo",
+				autoplay: ""
+			});
+
+			videoCallPanelRemoteStream.muted = true;
+
 			_Utilities.Utilities.log('got remote stream');
-			this.remoteVideo.srcObject = event.streams[0];
-			this.remoteVideo.style.height = "auto";
+			videoCallPanelRemoteStream.srcObject = event.streams[0];
+			videoCallPanelRemoteStream.style.height = "auto";
+
+			//Add the holder into the DOM
+			document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
 		}
 	}, {
 		key: 'errorHandler',

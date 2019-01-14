@@ -1,6 +1,6 @@
 {
   "name": "groupwat.ch",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.3",
   "description": "Make your own video room to watch videos remotely with all your friends",
   "main": "dist/js/bundle.min.js",
   "unpkg": "dist/js/bundle.min.js",
