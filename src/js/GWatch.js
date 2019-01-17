@@ -177,7 +177,7 @@ class GWatch{
 
         //Create video broadcast button
         this.videoCallPanelStartBtn = document.createElement("button");
-        this.videoCallPanelStartBtn.onclick = function(){ this.webRTC.requetVideo() }.bind(this);
+        this.videoCallPanelStartBtn.onclick = function(){ this.webRTC.requestVideo() }.bind(this);
         this.videoCallPanelStartBtn.innerHTML = "Start Video";
         this.videoCallPanelStartBtn.classList.add(this.config.videoStartBtnClass);
 

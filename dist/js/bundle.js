@@ -293,7 +293,7 @@ var GWatch = function () {
             //Create video broadcast button
             this.videoCallPanelStartBtn = document.createElement("button");
             this.videoCallPanelStartBtn.onclick = function () {
-                this.webRTC.requetVideo();
+                this.webRTC.requestVideo();
             }.bind(this);
             this.videoCallPanelStartBtn.innerHTML = "Start Video";
             this.videoCallPanelStartBtn.classList.add(this.config.videoStartBtnClass);
@@ -1250,7 +1250,7 @@ var Socket = exports.Socket = function Socket(socket_server) {
     this.websocket.onerror = _Utilities.Utilities.onSocketError.bind(this);
     this.websocket.onclose = _Utilities.Utilities.onSocketError.bind(this);
 
-    this.notificationAudio = new Audio('https://daf0mtu6jztqj.cloudfront.net/wp-content/uploads/20181001182143/to-the-point.mp3');
+    this.notificationAudio = new Audio('https://dsmbdpe1u2kpu.cloudfront.net/wp-content/uploads/20181001182143/to-the-point.mp3');
 };
 
 Socket.prototype.playNotificationSound = function () {
@@ -1373,22 +1373,42 @@ var WebRTC = exports.WebRTC = function () {
 		} else {
 			alert('Your browser does not support getUserMedia API');
 		}
+
+		//Register user left notifier
+		window.addEventListener('beforeunload', function () {
+			this.leavingRoom();
+		}.bind(this), false);
 	}
 
 	_createClass(WebRTC, [{
+		key: 'leavingRoom',
+		value: function leavingRoom() {
+			this.serverConnection.send(JSON.stringify({
+				peerInfo: _Utilities.Utilities.config.peerInfo,
+				'from': _Utilities.Utilities.session_identifier,
+				'type': 'bye'
+			}));
+		}
+	}, {
 		key: 'getUserMediaSuccess',
 		value: function getUserMediaSuccess(stream) {
 			this.localVideo.srcObject = stream;
 		}
+
+		//New joiners make a video request
+
 	}, {
-		key: 'requetVideo',
-		value: function requetVideo() {
+		key: 'requestVideo',
+		value: function requestVideo() {
 			this.serverConnection.send(JSON.stringify({
 				peerInfo: _Utilities.Utilities.config.peerInfo,
 				'from': _Utilities.Utilities.session_identifier,
 				'type': 'callRequest'
 			}));
 		}
+
+		//Already connected peers startVideoCall with the new joiner as response to his requestVideo
+
 	}, {
 		key: 'startVideoCall',
 		value: function startVideoCall(isCaller, requestSignal) {
@@ -1410,7 +1430,29 @@ var WebRTC = exports.WebRTC = function () {
 				}
 			};
 
-			this.peerConnection[requestSignal.from].ontrack = this.gotRemoteStream.bind(this);
+			this.peerConnection[requestSignal.from].ontrack = function (event) {
+				if (event.track.kind != "video") {
+					return;
+				}
+
+				_Utilities.Utilities.log("Remote video found!!");
+				//Create video tag for remote stream
+				var videoCallPanelRemoteStream = _Utilities.Utilities.createVideoStreamHolder({
+					class: "remoteVideo",
+					id: requestSignal.from,
+					autoplay: ""
+				});
+
+				videoCallPanelRemoteStream.muted = true;
+
+				_Utilities.Utilities.log('got remote stream');
+				videoCallPanelRemoteStream.srcObject = event.streams[0];
+				videoCallPanelRemoteStream.style.height = "auto";
+
+				//Add the holder into the DOM
+				document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
+			};
+
 			//this.peerConnection[requestSignal.from].addStream(this.localStream);
 
 			this.isNegotiating[requestSignal.from] = false;
@@ -1461,12 +1503,16 @@ var WebRTC = exports.WebRTC = function () {
 	}, {
 		key: 'gotMessageFromServer',
 		value: function gotMessageFromServer(message) {
-
 			//Call the super method
 			_Utilities.Utilities.mSocket.onMessage(message);
 			var signal = JSON.parse(message.data);
 
-			if (signal.type == "callRequest") {
+			if (signal.type == "bye") {
+
+				//Remove leaving peers video from the DOM
+				var remoteVideoHolerForLeavingPeer = document.getElementById(signal.from);
+				remoteVideoHolerForLeavingPeer.parentNode.removeChild(remoteVideoHolerForLeavingPeer);
+			} else if (signal.type == "callRequest") {
 
 				_Utilities.Utilities.log("Got a call application from" + signal.from, signal);
 
@@ -1512,29 +1558,6 @@ var WebRTC = exports.WebRTC = function () {
 
 				this.peerConnection[signal.from].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 			}
-		}
-	}, {
-		key: 'gotRemoteStream',
-		value: function gotRemoteStream(event) {
-			if (event.track.kind != "video") {
-				return;
-			}
-
-			_Utilities.Utilities.log("Remote video found!!");
-			//Create video tag for remote stream
-			var videoCallPanelRemoteStream = _Utilities.Utilities.createVideoStreamHolder({
-				class: "remoteVideo",
-				autoplay: ""
-			});
-
-			videoCallPanelRemoteStream.muted = true;
-
-			_Utilities.Utilities.log('got remote stream');
-			videoCallPanelRemoteStream.srcObject = event.streams[0];
-			videoCallPanelRemoteStream.style.height = "auto";
-
-			//Add the holder into the DOM
-			document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
 		}
 	}, {
 		key: 'errorHandler',
