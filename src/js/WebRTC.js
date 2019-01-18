@@ -100,15 +100,14 @@
 				id:requestSignal.from,
 				autoplay : "",
 			});
-	
-			videoCallPanelRemoteStream.muted = true;
-	
+		
 			Utilities.log('got remote stream');
 			videoCallPanelRemoteStream.srcObject = event.streams[0];
 			videoCallPanelRemoteStream.style.height = "auto";
 	
 			//Add the holder into the DOM
 			document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
+			Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.GOT_REMOTE_VIDEO,{detail:event}));
 		}
 
  		//this.peerConnection[requestSignal.from].addStream(this.localStream);
@@ -174,6 +173,8 @@
 			//Remove leaving peers video from the DOM
 			var remoteVideoHolerForLeavingPeer = document.getElementById(signal.from);
 			remoteVideoHolerForLeavingPeer.parentNode.removeChild(remoteVideoHolerForLeavingPeer);
+
+			Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.PEER_LEFT,{detail:signal}));
 
 		}else if(signal.type=="callRequest"){
 
