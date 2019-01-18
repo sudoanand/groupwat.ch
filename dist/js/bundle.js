@@ -1443,14 +1443,13 @@ var WebRTC = exports.WebRTC = function () {
 					autoplay: ""
 				});
 
-				videoCallPanelRemoteStream.muted = true;
-
 				_Utilities.Utilities.log('got remote stream');
 				videoCallPanelRemoteStream.srcObject = event.streams[0];
 				videoCallPanelRemoteStream.style.height = "auto";
 
 				//Add the holder into the DOM
 				document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
+				_Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.GOT_REMOTE_VIDEO, { detail: event }));
 			};
 
 			//this.peerConnection[requestSignal.from].addStream(this.localStream);
@@ -1512,6 +1511,8 @@ var WebRTC = exports.WebRTC = function () {
 				//Remove leaving peers video from the DOM
 				var remoteVideoHolerForLeavingPeer = document.getElementById(signal.from);
 				remoteVideoHolerForLeavingPeer.parentNode.removeChild(remoteVideoHolerForLeavingPeer);
+
+				_Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.PEER_LEFT, { detail: signal }));
 			} else if (signal.type == "callRequest") {
 
 				_Utilities.Utilities.log("Got a call application from" + signal.from, signal);
@@ -1648,8 +1649,10 @@ var Events = exports.Events = {
     FIRST_VIDEO_PLAY: 'firstVieoPlay',
     SOCKET_CONNECTED: 'socketConnected',
     PEER_JOINED: 'peerJoined',
+    PEER_LEFT: 'peerLeft',
     ENTER_FULL_SCREEN: 'enterFullScreen',
-    EXIT_FULL_SCREEN: 'exitFullScreen'
+    EXIT_FULL_SCREEN: 'exitFullScreen',
+    GOT_REMOTE_VIDEO: 'gotRemoteVideo'
 };
 
 /***/ }),
