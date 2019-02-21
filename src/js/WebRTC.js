@@ -67,12 +67,13 @@
  	}
 
 	//Already connected peers startVideoCall with the new joiner as response to his requestVideo
- 	startVideoCall(isCaller,requestSignal) {
+ 	async startVideoCall(isCaller,requestSignal) {
 
- 		Utilities.log("making pc:",requestSignal.from);
-
- 		this.peerConnection[requestSignal.from] = new RTCPeerConnection(this.peerConnectionConfig);
- 		this.peerConnection[requestSignal.from].onicecandidate = (event) => {
+        Utilities.log("making pc:",requestSignal.from);
+        
+        this.peerConnection[requestSignal.from] = new RTCPeerConnection(this.peerConnectionConfig);
+        var peerFrom = this.peerConnection[requestSignal.from];
+ 		peerFrom.onicecandidate = (event) => {
  			if(event.candidate != null) {    
 
 				this.serverConnection.send(JSON.stringify({
@@ -84,11 +85,9 @@
 				}));
 
 			}
-		 }
-		 
-	
-
- 		this.peerConnection[requestSignal.from].ontrack = (event) => {
+		}
+		
+ 		peerFrom.ontrack = (event) => {
 			if(event.track.kind!="video"){
 				return;
 			}
@@ -105,17 +104,57 @@
 			videoCallPanelRemoteStream.srcObject = event.streams[0];
 			videoCallPanelRemoteStream.style.height = "auto";
 	
-			//Add the holder into the DOM
-			document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStream);
+            //Add the holder into the DOM
+            var videoCallPanelRemoteStreamContainer = document.createElement("div");
+            var videoCallPanelRemoteStreamFooter = document.createElement("div");
+
+            //Mute btn
+            var muteBtn = document.createElement("i");
+            muteBtn.classList.add("fa");
+            muteBtn.classList.add("fa-microphone-slash");
+            muteBtn.onclick = () => {
+                if(muteBtn.classList.contains("active")){
+
+                    muteBtn.classList.remove("active");
+                    videoCallPanelRemoteStream.muted= false;
+                    return;
+                }
+                muteBtn.classList.add("active");
+                videoCallPanelRemoteStream.muted = true;
+            }
+
+            //Adding some classes
+            videoCallPanelRemoteStreamContainer.classList.add("remoteVideoContainer");
+            videoCallPanelRemoteStreamFooter.classList.add("remoteVideoFooter");
+            
+            //Append
+            videoCallPanelRemoteStreamContainer.appendChild(videoCallPanelRemoteStream);
+            videoCallPanelRemoteStreamFooter.appendChild(muteBtn);
+            videoCallPanelRemoteStreamContainer.appendChild(videoCallPanelRemoteStreamFooter);
+
+
+			document.getElementsByClassName('GWatch_camContainer_videos')[0].appendChild(videoCallPanelRemoteStreamContainer);
 			Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.GOT_REMOTE_VIDEO,{detail:event}));
 		}
 
- 		//this.peerConnection[requestSignal.from].addStream(this.localStream);
+		this.peerConnection[requestSignal.from].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
+		  this.isNegotiating[requestSignal.from] = (this.peerConnection[requestSignal.from].signalingState != "stable");
+		}
 
- 		this.isNegotiating[requestSignal.from] = false;
- 		this.peerConnection[requestSignal.from].onnegotiationneeded = () => {
 
+        //Add the track to be sent
+        var stream = this.localVideo.srcObject;
+        stream.getTracks().forEach((track) => { this.peerConnection[requestSignal.from].addTrack(track, stream); });
+         
+        //Create offer when needed
+        this.isNegotiating[requestSignal.from] = false;
+ 		peerFrom.onnegotiationneeded = async () => {
 
+            if(!isCaller){
+                return;
+            }
+
+            Utilities.log("I need it",window.theRemoteDesc);
 
  			if (this.isNegotiating[requestSignal.from]) {
  				Utilities.log(requestSignal);
@@ -126,42 +165,31 @@
 
  			this.isNegotiating[requestSignal.from] = true;
 
- 			this.peerConnection[requestSignal.from].createOffer().then((description) =>{
 
- 				Utilities.log('got local description');
-				this.peerConnection[requestSignal.from].setLocalDescription(description).then(function() {
+ 			var description = await peerFrom.createOffer();
 
-	 				//Send a call offer
-					this.serverConnection.send(JSON.stringify({
-						peerInfo : Utilities.config.peerInfo,
-						'from': Utilities.session_identifier,
-						'to' : requestSignal.from,
-						'sdp': this.peerConnection[requestSignal.from].localDescription, 
-						'uuid': this.uuid
-					}));
-
-				}.bind(this)).catch(this.errorHandler);
-				
- 			}).catch(this.errorHandler);
+            Utilities.log('got local description');
+            Utilities.log("a",isCaller,requestSignal);
+                       
+            await peerFrom.setLocalDescription(description); 
+            Utilities.log("b");
+            
+            //if(isCaller){
+            Utilities.log('Making offer');
+            //Send a call offer
+            this.serverConnection.send(JSON.stringify({
+                peerInfo : Utilities.config.peerInfo,
+                'from': Utilities.session_identifier,
+                'to' : requestSignal.from,
+                'sdp': this.peerConnection[requestSignal.from].localDescription, 
+                'uuid': this.uuid
+            }));
+            //}
+				 			
 		}; 	
-
-
-		this.peerConnection[requestSignal.from].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
-		  this.isNegotiating[requestSignal.from] = (this.peerConnection[requestSignal.from].signalingState != "stable");
-		}
-
-
-		if(navigator.mediaDevices.getUserMedia) {
- 			navigator.mediaDevices.getUserMedia(this.constraints).then((stream)=>{
- 				stream.getTracks().forEach((track) =>
-			      this.peerConnection[requestSignal.from].addTrack(track, stream));
- 				this.localStream=stream;
-			    this.localVideo.srcObject = stream;
- 			}).catch(this.errorHandler);
- 		} else {
- 			alert('Your browser does not support getUserMedia API');
- 		}		    		
  	}
+
+
 
  	gotMessageFromServer(message) {
 		//Call the super method
@@ -195,8 +223,8 @@
 			this.peerConnection[signal.from].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
 			  // Only create answers in response to offers
 			  if(signal.sdp.type == 'offer') {
-
-			  	Utilities.log("Got an offer from "+signal.from,signal)
+                
+                Utilities.log("Got an offer from "+signal.from,signal)
 
 			  	this.peerConnection[signal.from].createAnswer().then((description) => {
 
@@ -213,15 +241,13 @@
 
 			  	}).catch(this.errorHandler);
 			  }else{
-		
-			  	Utilities.log("Got an asnwer from "+signal.from);
-		
-			  }
+                Utilities.log("Got an asnwer from "+signal.from);		
+              }
+              
 			}.bind(this)).catch(this.errorHandler);
 		} else if(signal.ice && signal.to == Utilities.session_identifier) {
 		
 			//Utilities.log("Adding ice.candidate : ",signal);
-
 			this.peerConnection[signal.from].addIceCandidate(new RTCIceCandidate(signal.ice)).catch(this.errorHandler);
 		}
 	}

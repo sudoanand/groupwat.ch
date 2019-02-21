@@ -11,6 +11,26 @@
 	height: 100%;
 }
 
+.remoteVideoContainer {
+    position: relative;
+}
+
+.remoteVideoFooter i{
+    cursor: pointer;
+}
+
+.remoteVideoFooter i:hover,.remoteVideoFooter i.active{
+    color:#fff;
+}
+
+
+.remoteVideoFooter {
+    position: absolute;
+    bottom: 0px;
+    z-index: 999;
+    padding: 10px;
+}
+
 .fullscreen_vidjs #GWatch_playerContainer{
 	height: 100%;
 }

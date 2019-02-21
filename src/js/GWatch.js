@@ -3,6 +3,7 @@
  * A controller class for the vidoe player and index page functionalities
  * @author Anand Singh <@hack4mer> https://anand.today
  */
+import 'babel-polyfill';
 import {VideoPlayer} from './VideoPlayer'
 import $ from 'jquery';
 import {Socket} from './Socket'
