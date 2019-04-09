@@ -1,6 +1,9 @@
 /**
  * WebRTC.js
  * Controller class for the WebRTC audio/video/file transmission
+ * Following are the steps involved in a successful video call
+ * -> New comer : requestVideo (make a call request)
+ * -> Connected peers : startVideoCall (make an offer to the new commer as response to the callRequest)
  */
  import {Utilities} from './Utilities'
 

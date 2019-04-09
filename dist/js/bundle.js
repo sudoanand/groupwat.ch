@@ -10243,6 +10243,8 @@ Socket.prototype.onMessage = function (ev) {
     var response = JSON.parse(ev.data); //Server sends Json string
     if (response.key == "chat") {
         this.gotChat(response);
+    } else if (response.key == "library") {
+        _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.GOT_LIBRARY_LINK, { detail: response.value }));
     } else if (response.key == "connection") {
 
         _Utilities.Utilities.container.dispatchEvent(new CustomEvent(_Utilities.Utilities.events.PEER_JOINED, { detail: response.value }));
@@ -10308,6 +10310,9 @@ exports.WebRTC = undefined;
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); /**
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * WebRTC.js
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * Controller class for the WebRTC audio/video/file transmission
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * Following are the steps involved in a successful video call
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * -> New comer : requestVideo (make a call request)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      * -> Connected peers : startVideoCall (make an offer to the new commer as response to the callRequest)
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 
@@ -10706,7 +10711,8 @@ var Events = exports.Events = {
     PEER_LEFT: 'peerLeft',
     ENTER_FULL_SCREEN: 'enterFullScreen',
     EXIT_FULL_SCREEN: 'exitFullScreen',
-    GOT_REMOTE_VIDEO: 'gotRemoteVideo'
+    GOT_REMOTE_VIDEO: 'gotRemoteVideo',
+    GOT_LIBRARY_LINK: 'gotLibraryLink'
 };
 
 /***/ }),
