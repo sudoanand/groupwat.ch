@@ -199,7 +199,7 @@
 		if(signal.type=="bye"){
 
 			//Remove leaving peers video from the DOM
-			var remoteVideoHolerForLeavingPeer = document.getElementById(signal.from);
+			var remoteVideoHolerForLeavingPeer = document.getElementById(signal.from).parentElement;
 			remoteVideoHolerForLeavingPeer.parentNode.removeChild(remoteVideoHolerForLeavingPeer);
 
 			Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.PEER_LEFT,{detail:signal}));

@@ -7,5 +7,6 @@ export var Events = {
     PEER_LEFT: 'peerLeft',
     ENTER_FULL_SCREEN:'enterFullScreen',
     EXIT_FULL_SCREEN:'exitFullScreen',
-    GOT_REMOTE_VIDEO:'gotRemoteVideo'
+    GOT_REMOTE_VIDEO:'gotRemoteVideo',
+    GOT_LIBRARY_LINK:'gotLibraryLink'
 };

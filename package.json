@@ -1,6 +1,6 @@
 {
   "name": "groupwat.ch",
-  "version": "2.0.2-beta.1",
+  "version": "2.1.0",
   "description": "Make your own video room to watch videos remotely with all your friends",
   "main": "dist/js/bundle.min.js",
   "unpkg": "dist/js/bundle.min.js",
@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "jquery": "^3.3.1",
+    "react-native-google-places-autocomplete": "^1.3.9",
     "srt-webvtt": "^1.0.1",
     "video.js": "^7.1.0"
   }

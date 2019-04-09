@@ -17,6 +17,7 @@
 
 .remoteVideoFooter i{
     cursor: pointer;
+    font-size: 20px;
 }
 
 .remoteVideoFooter i:hover,.remoteVideoFooter i.active{
@@ -26,7 +27,7 @@
 
 .remoteVideoFooter {
     position: absolute;
-    bottom: 0px;
+    bottom: 5px;
     z-index: 999;
     padding: 10px;
 }

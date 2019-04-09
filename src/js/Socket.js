@@ -48,7 +48,10 @@ Socket.prototype.onMessage = function(ev) {
     var response = JSON.parse(ev.data); //Server sends Json string
     if (response.key == "chat") {
         this.gotChat(response);
-    } else if (response.key == "connection") {
+    }else if(response.key=="library"){
+        Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.GOT_LIBRARY_LINK,{detail:response.value}));
+    }
+    else if (response.key == "connection") {
 
         Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.PEER_JOINED,{detail:response.value}));
     } else {
