@@ -53,7 +53,14 @@ import VTTConverter from 'srt-webvtt';
             "icon": "icon-speech",
             "title": "Add subtitle",
         }, this.onAddSubBtnClicked.bind(this));
-        //Add subtitle button
+        //Add syc
+        this.subtitleBtn = this.addNewButton({
+            "id": "addSubsBtn",
+            "icon": "icon-refresh",
+            "title": "Sync everyone with me",
+        }, this.onSyncWithMe.bind(this));
+
+        //Add fullscreen button
         this.fullScreenBtn = this.addNewButton({
             "id": "fullScreenToogleBtn",
             "icon": "icon-size-fullscreen",
@@ -175,7 +182,7 @@ import VTTConverter from 'srt-webvtt';
     }
     /**
      * Handles click event for the "Add subtitle button"
-     * @return {[type]} [description]
+     * 
      */
      onAddSubBtnClicked() {
         var tempFileInput = $('<input/>').attr('type', 'file').attr('accept', '.vtt,.srt');
@@ -183,6 +190,15 @@ import VTTConverter from 'srt-webvtt';
         //Open the file dialog to select subtitle
         tempFileInput.trigger('click');
     }
+
+    /**
+     * Handles the sync button click
+     * 
+     */
+     onSyncWithMe(){
+        this.syncVideoPlayer();
+     }
+
     /**
      * Handles the event of a subtitle being changed or added
      * @param {event} e  jQuery event object
@@ -241,6 +257,38 @@ import VTTConverter from 'srt-webvtt';
             console.error(err);
         })
     }
+
+    /**
+     * Handle seek event
+     * 
+     */
+    syncVideoPlayer(e) {
+        this.videoSeeking = false;
+        var seekedTo = this.player.currentTime();
+        if (seekedTo == this.lastSeekValue) {
+            return;
+        }
+        Utilities.log("Video seeked");
+        var socketPayload = {
+            peerInfo : Utilities.config.peerInfo,
+            name: Utilities.session_identifier,
+            key: "seek_value",
+            value: {
+                time: seekedTo,
+                play: !this.player.paused()
+            }
+        };
+        this.lastSeekValue = seekedTo;
+        if (this.notifyPeers) {
+            //Notify peers
+            Utilities.log("Sending seeked singal message");
+            Utilities.log(socketPayload)
+            Utilities.websocket.send(JSON.stringify(socketPayload));
+        }
+        //Remove the notification lock, if present
+        this.notifyPeers = true;
+    }
+
     /**
      * Handles videojs player events and notifies peers about the event 
      * 
@@ -295,31 +343,6 @@ import VTTConverter from 'srt-webvtt';
             this.notifyPeers = true;
         }.bind(this));
         //Video seeke happened event handler
-        this.player.on("seeked", function(e) {
-            this.videoSeeking = false;
-            var seekedTo = this.player.currentTime();
-            if (seekedTo == this.lastSeekValue) {
-                return;
-            }
-            Utilities.log("Video seeked");
-            var socketPayload = {
-                peerInfo : Utilities.config.peerInfo,
-                name: Utilities.session_identifier,
-                key: "seek_value",
-                value: {
-                    time: seekedTo,
-                    play: !this.player.paused()
-                }
-            };
-            this.lastSeekValue = seekedTo;
-            if (this.notifyPeers) {
-                //Notify peers
-                Utilities.log("Sending seeked singal message");
-                Utilities.log(socketPayload)
-                Utilities.websocket.send(JSON.stringify(socketPayload));
-            }
-            //Remove the notification lock, if present
-            this.notifyPeers = true;
-        }.bind(this));
+        this.player.on("seeked", this.syncVideoPlayer.bind(this));
     }
 }
