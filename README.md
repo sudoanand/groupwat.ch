@@ -56,6 +56,7 @@ This example code usage free WebSocket server from  [WebSocket.in](https://www.w
  Codepen : [https://codepen.io/hack4mer/full/dgVJpN](https://codepen.io/hack4mer/full/dgVJpN)
 ## Configuration
 Following are configuration options available for the `GWatch` API
+Note: This doc table might be outdated, see [GWatch.js source](https://github.com/hack4mer/groupwat.ch/blob/master/src/js/GWatch.js#L26) for updated configurations and [Event.js](https://github.com/hack4mer/groupwat.ch/blob/master/src/js/Events.js) for all supported events.
 
 | Option                | Description                                     | Value  |
 | ----------------------------- | ----------------------------------------------------------------------------- | -------------- |
