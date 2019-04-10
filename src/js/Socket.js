@@ -49,7 +49,7 @@ Socket.prototype.onMessage = function(ev) {
     if (response.key == "chat") {
         this.gotChat(response);
     }else if(response.key=="library"){
-        Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.GOT_LIBRARY_LINK,{detail:response.value}));
+        Utilities.container.dispatchEvent(new CustomEvent(Utilities.events.GOT_LIBRARY_LINK,{detail:response}));
     }
     else if (response.key == "connection") {
 
